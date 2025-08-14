@@ -1,107 +1,102 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+// script.js
+const tela = document.getElementById('tela');
+const ctx = tela.getContext('2d');
 
-let birdY = 200;
-let birdVelocity = 0;
-let gravity = 0.5;
-let pipes = [];
-let score = 0;
-let gameOver = false;
+let jogador1 = {
+  x: 100,
+  y: 100,
+  cor: '#ff0000',
+  velocidade: 5
+};
 
-document.addEventListener("keydown", jump);
-canvas.addEventListener("click", jump);
-document.getElementById("restartBtn").addEventListener("click", restart);
+let jogador2 = {
+  x: 700,
+  y: 100,
+  cor: '#0000ff',
+  velocidade: 5
+};
 
-function jump() {
-    if (!gameOver) {
-        birdVelocity = -7;
-    }
+let bandeira1 = {
+  x: 100,
+  y: 500,
+  cor: '#ff0000'
+};
+
+let bandeira2 = {
+  x: 700,
+  y: 500,
+  cor: '#0000ff'
+};
+
+let projeteis = [];
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'w') {
+    jogador1.y -= jogador1.velocidade;
+  }
+  
+  if (e.key === 's') {
+    jogador1.y += jogador1.velocidade;
+  }
+  
+  if (e.key === 'a') {
+    jogador1.x -= jogador1.velocidade;
+  }
+  
+  if (e.key === 'd') {
+    jogador1.x += jogador1.velocidade;
+  }
+  
+  if (e.key === 'ArrowUp') {
+    jogador2.y -= jogador2.velocidade;
+  }
+  
+  if (e.key === 'ArrowDown') {
+    jogador2.y += jogador2.velocidade;
+  }
+  
+  if (e.key === 'ArrowLeft') {
+    jogador2.x -= jogador2.velocidade;
+  }
+  
+  if (e.key === 'ArrowRight') {
+    jogador2.x += jogador2.velocidade;
+  }
+  
+  if (e.key === ' ') {
+    projeteis.push({
+      x: jogador1.x,
+      y: jogador1.y,
+      cor: jogador1.cor,
+      velocidade: 10
+    });
+  }
+});
+
+function desenhar() {
+  ctx.clearRect(0, 0, tela.width, tela.height);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, tela.width, tela.height);
+  
+  ctx.fillStyle = jogador1.cor;
+  ctx.fillRect(jogador1.x, jogador1.y, 50, 50);
+  
+  ctx.fillStyle = jogador2.cor;
+  ctx.fillRect(jogador2.x, jogador2.y, 50, 50);
+  
+  ctx.fillStyle = bandeira1.cor;
+  ctx.fillRect(bandeira1.x, bandeira1.y, 20, 20);
+  
+  ctx.fillStyle = bandeira2.cor;
+  ctx.fillRect(bandeira2.x, bandeira2.y, 20, 20);
+  
+  for (let i = 0; i < projeteis.length; i++) {
+    ctx.fillStyle = projeteis[i].cor;
+    ctx.fillRect(projeteis[i].x, projeteis[i].y, 10, 10);
+    projeteis[i].x += projeteis[i].velocidade;
+  }
 }
 
-function restart() {
-    birdY = 200;
-    birdVelocity = 0;
-    pipes = [];
-    score = 0;
-    gameOver = false;
-    loop();
-}
-
-function createPipe() {
-    let pipeHeight = Math.floor(Math.random() * 200) + 50;
-    pipes.push({ x: canvas.width, height: pipeHeight });
-}
-
-function update() {
-    birdVelocity += gravity;
-    birdY += birdVelocity;
-
-    // Gerar novos canos
-    if (pipes.length === 0 || pipes[pipes.length - 1].x < 250) {
-        createPipe();
-    }
-
-    // Mover canos
-    for (let i = 0; i < pipes.length; i++) {
-        pipes[i].x -= 2;
-
-        // Colisão
-        if (
-            (birdY < pipes[i].height || birdY > pipes[i].height + 120) &&
-            pipes[i].x < 50 && pipes[i].x > 0
-        ) {
-            gameOver = true;
-        }
-
-        // Pontuação
-        if (pipes[i].x === 48) {
-            score++;
-        }
-    }
-
-    // Pássaro tocou no chão ou teto
-    if (birdY > canvas.height || birdY < 0) {
-        gameOver = true;
-    }
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Pássaro
-    ctx.fillStyle = "yellow";
-    ctx.beginPath();
-    ctx.arc(50, birdY, 15, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Canos
-    ctx.fillStyle = "green";
-    for (let i = 0; i < pipes.length; i++) {
-        ctx.fillRect(pipes[i].x, 0, 50, pipes[i].height); // Cano de cima
-        ctx.fillRect(pipes[i].x, pipes[i].height + 120, 50, canvas.height); // Cano de baixo
-    }
-
-    // Pontuação
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.fillText("Pontos: " + score, 10, 20);
-
-    // Fim de jogo
-    if (gameOver) {
-        ctx.fillStyle = "red";
-        ctx.font = "30px Arial";
-        ctx.fillText("GAME OVER", 100, 250);
-    }
-}
-
-function loop() {
-    if (!gameOver) {
-        update();
-        draw();
-        requestAnimationFrame(loop);
-    } else {
-        draw();
-    }
-}
-
-loop();
+setInterval(() => {
+  desenhar();
+}, 16);
