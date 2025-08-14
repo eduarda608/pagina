@@ -1,11 +1,10 @@
-// script.js
 const tela = document.getElementById('tela');
 const ctx = tela.getContext('2d');
 
 let jogador1 = {
   x: 100,
   y: 100,
-  cor: '#ff0000',
+  cor: 'red',
   velocidade: 5,
   largura: 50,
   altura: 50
@@ -14,7 +13,7 @@ let jogador1 = {
 let jogador2 = {
   x: 650,
   y: 100,
-  cor: '#0000ff',
+  cor: 'blue',
   velocidade: 5,
   largura: 50,
   altura: 50
@@ -23,7 +22,7 @@ let jogador2 = {
 let bandeira1 = {
   x: 100,
   y: 500,
-  cor: '#ff0000',
+  cor: 'red',
   largura: 20,
   altura: 20
 };
@@ -31,7 +30,7 @@ let bandeira1 = {
 let bandeira2 = {
   x: 680,
   y: 500,
-  cor: '#0000ff',
+  cor: 'blue',
   largura: 20,
   altura: 20
 };
@@ -72,7 +71,7 @@ document.addEventListener('keydown', (e) => {
 
 function desenhar() {
   ctx.clearRect(0, 0, tela.width, tela.height);
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, tela.width, tela.height);
   
   ctx.fillStyle = jogador1.cor;
