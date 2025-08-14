@@ -4,25 +4,34 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 500;
 
-let player1 = { x: 100, y: 200, color: "red", score: 0 };
-let player2 = { x: 600, y: 200, color: "blue", score: 0 };
-let speed = 5;
+let player1, player2, star, obstacles, keys;
+let gameOver = false;
 
-let point = { x: Math.random()*760, y: Math.random()*460, color: "yellow" };
-let obstacles = [];
-
-function createObstacle() {
-    obstacles.push({ x: Math.random()*760, y: Math.random()*460, size: 20 });
+function startGame() {
+    player1 = { x: 100, y: 200, color: "red", score: 0 };
+    player2 = { x: 600, y: 200, color: "blue", score: 0 };
+    star = { x: Math.random()*760, y: Math.random()*460 };
+    obstacles = [];
+    keys = {};
+    gameOver = false;
+    document.getElementById("winnerScreen").classList.add("hidden");
 }
 
+function createObstacle() {
+    if (!gameOver) {
+        obstacles.push({ x: Math.random()*760, y: Math.random()*460, size: 20 });
+    }
+}
 setInterval(createObstacle, 2000);
-
-let keys = {};
 
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
 function update() {
+    if (gameOver) return;
+
+    let speed = 5;
+
     // Player 1
     if (keys["w"]) player1.y -= speed;
     if (keys["s"]) player1.y += speed;
@@ -41,13 +50,13 @@ function update() {
         p.y = Math.max(0, Math.min(canvas.height - 20, p.y));
     });
 
-    // Coletar ponto
+    // Coleta da estrela
     [player1, player2].forEach(p => {
-        if (Math.abs(p.x - point.x) < 20 && Math.abs(p.y - point.y) < 20) {
+        if (Math.abs(p.x - star.x) < 20 && Math.abs(p.y - star.y) < 20) {
             p.score++;
             document.getElementById("ponto").play();
-            point.x = Math.random()*760;
-            point.y = Math.random()*460;
+            star.x = Math.random()*760;
+            star.y = Math.random()*460;
         }
     });
 
@@ -60,6 +69,23 @@ function update() {
             }
         });
     });
+
+    // Verifica vitória
+    if (player1.score >= 10) {
+        endGame("🔥 Jogador 1 venceu!");
+    } else if (player2.score >= 10) {
+        endGame("💧 Jogador 2 venceu!");
+    }
+}
+
+function endGame(winnerText) {
+    gameOver = true;
+    document.getElementById("winnerText").textContent = winnerText;
+    document.getElementById("winnerScreen").classList.remove("hidden");
+}
+
+function restartGame() {
+    startGame();
 }
 
 function draw() {
@@ -71,8 +97,10 @@ function draw() {
     ctx.fillStyle = player2.color;
     ctx.fillRect(player2.x, player2.y, 20, 20);
 
-    ctx.fillStyle = point.color;
-    ctx.fillRect(point.x, point.y, 15, 15);
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, 10, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.fillStyle = "white";
     ctx.font = "20px Arial";
@@ -91,4 +119,5 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+startGame();
 gameLoop();
