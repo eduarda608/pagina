@@ -1,16 +1,8 @@
+/* style.css */
 body {
-    text-align: center;
-    font-family: Arial, sans-serif;
-    background-color: #70c5ce;
+  background-color: #f0f0f0;
 }
 
-canvas {
-    background-color: #fff;
-    border: 2px solid black;
-}
-
-button {
-    margin-top: 10px;
-    padding: 10px 15px;
-    font-size: 16px;
+#tela {
+  border: 1px solid #ccc;
 }
