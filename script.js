@@ -1,107 +1,147 @@
-// Neon Bloom — jogo colorido, simples e chamativo
-(() => {
-  // elementos
-  const canvas = document.getElementById('game');
-  const overlay = document.getElementById('overlay');
-  const scoreEl = document.getElementById('score');
-  const levelEl = document.getElementById('level');
-  const comboEl = document.getElementById('combo');
-  const hint = document.getElementById('hint');
-  const sfxCollect = document.getElementById('sfxCollect');
-  const sfxHit = document.getElementById('sfxHit');
-  const bgMusic = document.getElementById('bgMusic');
-  const btnMute = document.getElementById('btnMute');
-  const btnRestart = document.getElementById('btnRestart');
+// Configurações do Canvas
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-  if(!canvas) return console.error('Canvas não encontrado');
+// Propriedades do jogador
+const playerWidth = 50;
+const playerHeight = 50;
+let playerX = canvas.width / 2 - playerWidth / 2;
+const playerSpeed = 5;
 
-  // ajustar resolução do canvas para ser nítido
-  function fitCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.max(600, Math.floor(rect.width * devicePixelRatio));
-    canvas.height = Math.max(420, Math.floor(rect.height * devicePixelRatio));
-  }
-  fitCanvas();
+// Propriedades dos itens e obstáculos
+const itemWidth = 30;
+const itemHeight = 30;
+const obstacleWidth = 40;
+const obstacleHeight = 40;
+let items = [];
+let obstacles = [];
+let score = 0;
+let gameOver = false;
 
-  const ctx = canvas.getContext('2d');
-  let running = false;
+// Sons
+const collectSound = new Audio('https://www.soundjay.com/button/beep-07.wav');
+const collisionSound = new Audio('https://www.soundjay.com/button/close-01.wav');
 
-  // estado do jogo
-  const state = {
-    score: 0,
-    level: 1,
-    combo: 0,
-    time: 0,
-    spawnTimer: 0,
-    particles: [],
-    flowers: [], // itens a coletar
-    hazards: [], // sombras a evitar
-    player: { x: canvas.width/2, y: canvas.height*0.78, r: 28 * devicePixelRatio, hue: Math.random()*360 },
-    muted: false
-  };
+// Função para desenhar o jogador
+function drawPlayer() {
+    ctx.fillStyle = "#3498db";
+    ctx.fillRect(playerX, canvas.height - playerHeight - 10, playerWidth, playerHeight);
+}
 
-  // util cores neon
-  function neonColor(h, sat=90, l=55) { return `hsl(${h}deg ${sat}% ${l}%)`; }
-
-  // efeitos sonoros safe play
-  function safePlay(audio) {
-    if(!audio) return;
-    audio.currentTime = 0;
-    const p = audio.play();
-    if(p && p.catch) p.catch(()=>{/*blocked*/});
-  }
-
-  // partículas
-  function spawnParticle(x,y,color,life=700) {
-    state.particles.push({
-      x,y,
-      vx:(Math.random()-0.5)*2.4*devicePixelRatio,
-      vy:(Math.random()-0.8)*-2.6*devicePixelRatio,
-      size: (Math.random()*6+2)*devicePixelRatio,
-      color,
-      t:0, life
+// Função para desenhar os itens (moedas)
+function drawItems() {
+    ctx.fillStyle = "#f39c12";
+    items.forEach(item => {
+        ctx.fillRect(item.x, item.y, itemWidth, itemHeight);
     });
-  }
+}
 
-  // criar flor colorida
-  function spawnFlower() {
-    const margin = 80*devicePixelRatio;
-    const x = Math.random()*(canvas.width - margin*2) + margin;
-    const y = Math.random()*(canvas.height*0.45) + margin;
-    const hue = Math.floor(Math.random()*360);
-    state.flowers.push({ x,y, r: 18*devicePixelRatio, hue, bob:Math.random()*Math.PI*2, ttl: 10000 });
-  }
-
-  // criar hazard (sombra)
-  function spawnHazard() {
-    const w = 40*devicePixelRatio + Math.random()*80*devicePixelRatio;
-    const x = Math.random()*(canvas.width - w);
-    state.hazards.push({
-      x, y: -60*devicePixelRatio, w, h: 26*devicePixelRatio + Math.random()*30*devicePixelRatio,
-      vy: 1.1*devicePixelRatio + Math.random()*1.6*devicePixelRatio,
-      hue: Math.random()*360
+// Função para desenhar os obstáculos
+function drawObstacles() {
+    ctx.fillStyle = "#e74c3c";
+    obstacles.forEach(obstacle => {
+        ctx.fillRect(obstacle.x, obstacle.y, obstacleWidth, obstacleHeight);
     });
-  }
+}
 
-  // reiniciar jogo
-  function resetGame() {
-    state.score=0; state.level=1; state.combo=0; state.time=0; state.spawnTimer=0;
-    state.particles=[]; state.flowers=[]; state.hazards=[];
-    state.player.x = canvas.width/2; state.player.y = canvas.height*0.78;
-    // spawn inicial
-    for(let i=0;i<4;i++) spawnFlower();
-    running = true;
-    hint.style.opacity = '0';
-    updateHUD();
-    // start music only after user gesture
-    if(!state.muted) safePlay(bgMusic);
-  }
+// Função para movimentar o jogador
+function movePlayer() {
+    if (keys.left && playerX > 0) {
+        playerX -= playerSpeed;
+    }
+    if (keys.right && playerX < canvas.width - playerWidth) {
+        playerX += playerSpeed;
+    }
+}
 
-  // HUD
-  function updateHUD(){ scoreEl.innerText = state.score; levelEl.innerText = state.level; comboEl.innerText = state.combo; }
+// Função para criar itens
+function createItem() {
+    const x = Math.random() * (canvas.width - itemWidth);
+    items.push({ x: x, y: 0 });
+}
 
-  // colisão círculo-retângulo helper
-  function circRectColl(cx,cy,cr, rx,ry,rw,rh) {
-    const nearestX = Math.max(rx, Math.min(cx, rx+rw));
-    const nearestY = Math.max(ry, Math.min(cy, ry+rh));
-    const dx = cx - nearestX; const dy = cy
+// Função para criar obstáculos
+function createObstacle() {
+    const x = Math.random() * (canvas.width - obstacleWidth);
+    obstacles.push({ x: x, y: 0 });
+}
+
+// Função para atualizar itens e obstáculos
+function updateItemsAndObstacles() {
+    items.forEach(item => {
+        item.y += 3;
+        if (item.y > canvas.height) {
+            items.shift();
+        }
+    });
+
+    obstacles.forEach(obstacle => {
+        obstacle.y += 5;
+        if (obstacle.y > canvas.height) {
+            obstacles.shift();
+        }
+    });
+}
+
+// Função para verificar colisões
+function checkCollisions() {
+    items.forEach((item, index) => {
+        if (item.x < playerX + playerWidth && item.x + itemWidth > playerX && item.y < canvas.height - playerHeight && item.y + itemHeight > canvas.height - playerHeight - 10) {
+            score++;
+            items.splice(index, 1);
+            collectSound.play();
+        }
+    });
+
+    obstacles.forEach((obstacle, index) => {
+        if (obstacle.x < playerX + playerWidth && obstacle.x + obstacleWidth > playerX && obstacle.y < canvas.height - playerHeight && obstacle.y + obstacleHeight > canvas.height - playerHeight - 10) {
+            gameOver = true;
+            collisionSound.play();
+            document.getElementById('gameOverMessage').textContent = "GAME OVER!";
+        }
+    });
+}
+
+// Função para atualizar a pontuação
+function updateScore() {
+    document.getElementById('score').textContent = score;
+}
+
+// Função de animação do jogo
+function gameLoop() {
+    if (gameOver) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    movePlayer();
+    updateItemsAndObstacles();
+    drawPlayer();
+    drawItems();
+    drawObstacles();
+    checkCollisions();
+    updateScore();
+
+    if (Math.random() < 0.02) createItem();
+    if (Math.random() < 0.01) createObstacle();
+
+    requestAnimationFrame(gameLoop);
+}
+
+// Controle das teclas
+const keys = {
+    left: false,
+    right: false
+};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') keys.left = true;
+    if (e.key === 'ArrowRight') keys.right = true;
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft') keys.left = false;
+    if (e.key === 'ArrowRight') keys.right = false;
+});
+
+// Iniciar o jogo
+gameLoop();
