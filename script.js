@@ -1,166 +1,107 @@
-const canvas = document.getElementById("game");
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const restartBtn = document.getElementById("restartBtn");
-const flapSound = document.getElementById("flapSound");
-const hitSound = document.getElementById("hitSound");
 
-const scoreEl = document.getElementById("score");
-const highEl = document.getElementById("high");
+let birdY = 200;
+let birdVelocity = 0;
+let gravity = 0.5;
+let pipes = [];
+let score = 0;
+let gameOver = false;
 
-let bird, gravity, velocity, jump, pipes, score, highScore, gameOver, frame, wingUp;
+document.addEventListener("keydown", jump);
+canvas.addEventListener("click", jump);
+document.getElementById("restartBtn").addEventListener("click", restart);
 
-highScore = Number(localStorage.getItem("flappyHigh")) || 0;
-highEl.textContent = highScore;
-
-function resetGame() {
-  bird = { x: 60, y: canvas.height / 2, size: 18 };
-  gravity = 0.5;
-  velocity = 0;
-  jump = -8;
-  pipes = [];
-  score = 0;
-  gameOver = false;
-  frame = 0;
-  wingUp = true;
+function jump() {
+    if (!gameOver) {
+        birdVelocity = -7;
+    }
 }
 
-function drawBackground() {
-  const skyColors = ["#70c5ce", "#8ecae6", "#90e0ef", "#48cae4", "#0077b6"];
-  const colorIndex = Math.floor((frame / 300) % skyColors.length);
-  ctx.fillStyle = skyColors[colorIndex];
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+function restart() {
+    birdY = 200;
+    birdVelocity = 0;
+    pipes = [];
+    score = 0;
+    gameOver = false;
+    loop();
 }
 
-function drawBird() {
-  ctx.fillStyle = "#ff0";
-  ctx.beginPath();
-  ctx.ellipse(bird.x, bird.y, bird.size, bird.size - 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  // Asas
-  ctx.fillStyle = "#ffa500";
-  if (wingUp) {
-    ctx.beginPath();
-    ctx.moveTo(bird.x - 5, bird.y);
-    ctx.lineTo(bird.x - 15, bird.y - 10);
-    ctx.lineTo(bird.x - 15, bird.y);
-    ctx.closePath();
-    ctx.fill();
-  } else {
-    ctx.beginPath();
-    ctx.moveTo(bird.x - 5, bird.y);
-    ctx.lineTo(bird.x - 15, bird.y + 10);
-    ctx.lineTo(bird.x - 15, bird.y);
-    ctx.closePath();
-    ctx.fill();
-  }
-}
-
-function drawPipes() {
-  ctx.fillStyle = "#0f0";
-  pipes.forEach(pipe => {
-    ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
-    ctx.fillRect(pipe.x, canvas.height - pipe.bottom, pipe.width, pipe.bottom);
-  });
+function createPipe() {
+    let pipeHeight = Math.floor(Math.random() * 200) + 50;
+    pipes.push({ x: canvas.width, height: pipeHeight });
 }
 
 function update() {
-  if (gameOver) return;
+    birdVelocity += gravity;
+    birdY += birdVelocity;
 
-  frame++;
-  if (frame % 10 === 0) wingUp = !wingUp;
-
-  velocity += gravity;
-  bird.y += velocity;
-
-  // Gera canos
-  if (pipes.length === 0 || pipes[pipes.length - 1].x < 250) {
-    let gap = 120;
-    let topHeight = Math.floor(Math.random() * (canvas.height - gap - 40)) + 20;
-    pipes.push({
-      x: canvas.width,
-      width: 40,
-      top: topHeight,
-      bottom: canvas.height - topHeight - gap
-    });
-  }
-
-  // Move canos
-  pipes.forEach(pipe => pipe.x -= 2);
-
-  // Remove canos e pontua
-  pipes = pipes.filter(pipe => {
-    if (pipe.x + pipe.width < 0) {
-      score++;
-      scoreEl.textContent = score;
-      return false;
+    // Gerar novos canos
+    if (pipes.length === 0 || pipes[pipes.length - 1].x < 250) {
+        createPipe();
     }
-    return true;
-  });
 
-  // Colisões
-  if (bird.y + bird.size > canvas.height || bird.y - bird.size < 0) {
-    endGame();
-  }
-  pipes.forEach(pipe => {
-    if (
-      bird.x + bird.size > pipe.x &&
-      bird.x - bird.size < pipe.x + pipe.width &&
-      (bird.y - bird.size < pipe.top ||
-       bird.y + bird.size > canvas.height - pipe.bottom)
-    ) {
-      endGame();
+    // Mover canos
+    for (let i = 0; i < pipes.length; i++) {
+        pipes[i].x -= 2;
+
+        // Colisão
+        if (
+            (birdY < pipes[i].height || birdY > pipes[i].height + 120) &&
+            pipes[i].x < 50 && pipes[i].x > 0
+        ) {
+            gameOver = true;
+        }
+
+        // Pontuação
+        if (pipes[i].x === 48) {
+            score++;
+        }
     }
-  });
+
+    // Pássaro tocou no chão ou teto
+    if (birdY > canvas.height || birdY < 0) {
+        gameOver = true;
+    }
 }
 
 function draw() {
-  drawBackground();
-  drawPipes();
-  drawBird();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Pássaro
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(50, birdY, 15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Canos
+    ctx.fillStyle = "green";
+    for (let i = 0; i < pipes.length; i++) {
+        ctx.fillRect(pipes[i].x, 0, 50, pipes[i].height); // Cano de cima
+        ctx.fillRect(pipes[i].x, pipes[i].height + 120, 50, canvas.height); // Cano de baixo
+    }
+
+    // Pontuação
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial";
+    ctx.fillText("Pontos: " + score, 10, 20);
+
+    // Fim de jogo
+    if (gameOver) {
+        ctx.fillStyle = "red";
+        ctx.font = "30px Arial";
+        ctx.fillText("GAME OVER", 100, 250);
+    }
 }
 
-function gameLoop() {
-  update();
-  draw();
-  requestAnimationFrame(gameLoop);
+function loop() {
+    if (!gameOver) {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    } else {
+        draw();
+    }
 }
 
-function flap() {
-  if (!gameOver) {
-    velocity = jump;
-    flapSound.currentTime = 0;
-    flapSound.play();
-  }
-}
-
-function endGame() {
-  gameOver = true;
-  hitSound.play();
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = "#fff";
-  ctx.font = "28px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText("Fim de jogo!", canvas.width / 2, canvas.height / 2 - 10);
-  ctx.font = "20px Arial";
-  ctx.fillText(`Pontos: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
-
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem("flappyHigh", highScore);
-    highEl.textContent = highScore;
-    ctx.fillText("🏆 Novo Recorde!", canvas.width / 2, canvas.height / 2 + 50);
-  }
-}
-
-window.addEventListener("keydown", e => {
-  if (e.code === "Space") flap();
-});
-canvas.addEventListener("click", flap);
-restartBtn.addEventListener("click", () => resetGame());
-
-resetGame();
-gameLoop();
+loop();
