@@ -1,21 +1,48 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo Evite os Obstáculos</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Neon Duel - 2 Jogadores</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <h1>Evite os Obstáculos 🚀</h1>
-    <div id="game-container">
-        <canvas id="gameCanvas" width="400" height="500"></canvas>
+  <div class="hud">
+    <div class="score">
+      <span class="p1">🟣 P1: <b id="scoreP1">0</b></span>
+      <span class="mid">NEON DUEL</span>
+      <span class="p2">🟢 P2: <b id="scoreP2">0</b></span>
     </div>
-    <p>Pontuação: <span id="score">0</span></p>
+    <div class="help">
+      <details>
+        <summary>Controles</summary>
+        <div class="grid">
+          <div>
+            <h4>Jogador 1 (esquerda)</h4>
+            <p>W/A/S/D = mover</p>
+            <p>V ou Espaço = atirar</p>
+          </div>
+          <div>
+            <h4>Jogador 2 (direita)</h4>
+            <p>Setas = mover</p>
+            <p>Enter = atirar</p>
+          </div>
+        </div>
+        <p>Primeiro a 5 pontos vence. Pegue <b>power-ups</b> luminosos!</p>
+      </details>
+    </div>
+  </div>
 
-    <!-- Sons -->
-    <audio id="hitSound" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3"></audio>
+  <canvas id="game"></canvas>
 
-    <script src="script.js"></script>
+  <div id="overlay" class="overlay hidden">
+    <div class="panel">
+      <h1 id="title">NEON DUEL</h1>
+      <p id="subtitle">Primeiro a 5 vence</p>
+      <button id="btnStart">Começar</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
 </body>
 </html>
