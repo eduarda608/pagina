@@ -1,92 +1,95 @@
-const tela = document.getElementById('tela');
-const ctx = tela.getContext('2d');
-
-let jogador1 = {
-  x: 100,
-  y: 100,
-  cor: 'red',
-  velocidade: 5,
-  largura: 50,
-  altura: 50
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const bola = {
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  vx: 5,
+  vy: 5,
+  raio: 10
 };
-
-let jogador2 = {
-  x: 650,
-  y: 100,
-  cor: 'blue',
-  velocidade: 5,
-  largura: 50,
-  altura: 50
+const raquete1 = {
+  x: 10,
+  y: canvas.height / 2 - 50,
+  largura: 10,
+  altura: 100,
+  velocidade: 5
 };
-
-let bandeira1 = {
-  x: 100,
-  y: 500,
-  cor: 'red',
-  largura: 20,
-  altura: 20
+const raquete2 = {
+  x: canvas.width - 20,
+  y: canvas.height / 2 - 50,
+  largura: 10,
+  altura: 100,
+  velocidade: 5
 };
+let pontos1 = 0;
+let pontos2 = 0;
 
-let bandeira2 = {
-  x: 680,
-  y: 500,
-  cor: 'blue',
-  largura: 20,
-  altura: 20
-};
+function desenhar() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'black';
+  ctx.fillRect(raquete1.x, raquete1.y, raquete1.largura, raquete1.altura);
+  ctx.fillRect(raquete2.x, raquete2.y, raquete2.largura, raquete2.altura);
+  ctx.beginPath();
+  ctx.arc(bola.x, bola.y, bola.raio, 0, 2 * Math.PI);
+  ctx.fillStyle = 'black';
+  ctx.fill();
+  ctx.font = '24px Arial';
+  ctx.fillStyle = 'black';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`Pontos: ${pontos1}`, 10, 10);
+  ctx.textAlign = 'right';
+  ctx.fillText(`Pontos: ${pontos2}`, canvas.width - 10, 10);
+}
+
+function atualizar() {
+  bola.x += bola.vx;
+  bola.y += bola.vy;
+
+  if (bola.y < 0 || bola.y > canvas.height) {
+    bola.vy = -bola.vy;
+  }
+
+  if (bola.x < raquete1.x + raquete1.largura && bola.y > raquete1.y && bola.y < raquete1.y + raquete1.altura) {
+    bola.vx = -bola.vx;
+  }
+
+  if (bola.x > raquete2.x - bola.raio && bola.y > raquete2.y && bola.y < raquete2.y + raquete2.altura) {
+    bola.vx = -bola.vx;
+  }
+
+  if (bola.x < 0) {
+    pontos2++;
+    bola.x = canvas.width / 2;
+    bola.y = canvas.height / 2;
+  }
+
+  if (bola.x > canvas.width) {
+    pontos1++;
+    bola.x = canvas.width / 2;
+    bola.y = canvas.height / 2;
+  }
+}
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'w') {
-    jogador1.y -= jogador1.velocidade;
+    raquete1.y -= raquete1.velocidade;
   }
-  
+
   if (e.key === 's') {
-    jogador1.y += jogador1.velocidade;
+    raquete1.y += raquete1.velocidade;
   }
-  
-  if (e.key === 'a') {
-    jogador1.x -= jogador1.velocidade;
-  }
-  
-  if (e.key === 'd') {
-    jogador1.x += jogador1.velocidade;
-  }
-  
+
   if (e.key === 'ArrowUp') {
-    jogador2.y -= jogador2.velocidade;
+    raquete2.y -= raquete2.velocidade;
   }
-  
+
   if (e.key === 'ArrowDown') {
-    jogador2.y += jogador2.velocidade;
-  }
-  
-  if (e.key === 'ArrowLeft') {
-    jogador2.x -= jogador2.velocidade;
-  }
-  
-  if (e.key === 'ArrowRight') {
-    jogador2.x += jogador2.velocidade;
+    raquete2.y += raquete2.velocidade;
   }
 });
 
-function desenhar() {
-  ctx.clearRect(0, 0, tela.width, tela.height);
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, tela.width, tela.height);
-  
-  ctx.fillStyle = jogador1.cor;
-  ctx.fillRect(jogador1.x, jogador1.y, jogador1.largura, jogador1.altura);
-  
-  ctx.fillStyle = jogador2.cor;
-  ctx.fillRect(jogador2.x, jogador2.y, jogador2.largura, jogador2.altura);
-  
-  ctx.fillStyle = bandeira1.cor;
-  ctx.fillRect(bandeira1.x, bandeira1.y, bandeira1.largura, bandeira1.altura);
-  
-  ctx.fillStyle = bandeira2.cor;
-  ctx.fillRect(bandeira2.x, bandeira2.y, bandeira2.largura, bandeira2.altura);
-}
-
 setInterval(() => {
   desenhar();
+  atualizar();
 }, 16);
