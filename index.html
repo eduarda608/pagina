@@ -1,35 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Galaxy Rumble — 1v1 Neon</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrida Divertida - 2 Jogadores</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header class="topbar">
-      <div class="score p1">P1 <span id="score1">0</span></div>
-      <div class="controls">
-        <button id="btnStart">▶ Iniciar</button>
-        <button id="btnReset">⟲ Reiniciar</button>
-        <button id="btnSound">🔊 Som</button>
-        <div id="status">Pronto — pressione Iniciar</div>
-      </div>
-      <div class="score p2">P2 <span id="score2">0</span></div>
-    </header>
+    <h1>🏁 Corrida Divertida 🏁</h1>
+    <p>Jogador 1: Tecla <b>A</b> | Jogador 2: Tecla <b>L</b></p>
 
-    <main class="gameArea">
-      <canvas id="c" width="1280" height="720" aria-label="Galaxy Rumble"></canvas>
-      <div class="legend">
-        <div><b>P1</b> WASD + F (dash: Shift)</div>
-        <div><b>P2</b> setas + L (dash: /)</div>
-      </div>
-    </main>
+    <div class="pista">
+        <div id="jogador1" class="carro carro1">🚗</div>
+        <div id="jogador2" class="carro carro2">🚙</div>
+    </div>
 
-    <footer class="foot">Galaxy Rumble • Primeiro a 20 eliminações vence. Feito para impressionar ✨</footer>
-  </div>
+    <h2 id="mensagem"></h2>
 
-  <script src="script.js"></script>
+    <audio id="somVitoria" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+    <audio id="somPasso" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+
+    <script src="script.js"></script>
 </body>
 </html>
