@@ -1,25 +1,21 @@
-html
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jogo dos Círculos Coloridos</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Evite os Obstáculos</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="game-container">
-    <h1>Jogo dos Círculos Coloridos</h1>
-    <p>Clique nos círculos coloridos antes que desapareçam!</p>
-    <div id="circle"></div>
+    <h1>Evite os Obstáculos 🚀</h1>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="400" height="500"></canvas>
+    </div>
     <p>Pontuação: <span id="score">0</span></p>
-    <button id="restart-btn" style="display:none;">Reiniciar</button>
-    <p id="game-over" style="display:none; color:#ff4757; font-weight:bold;"></p>
-  </div>
 
-  <audio id="pop-sound" src="https://freesound.org/data/previews/341/341695_6244467-lq.mp3" preload="auto"></audio>
-  <audio id="miss-sound" src="https://freesound.org/data/previews/198/198841_285997-lq.mp3" preload="auto"></audio>
+    <!-- Sons -->
+    <audio id="hitSound" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3"></audio>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
