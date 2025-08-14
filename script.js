@@ -1,99 +1,97 @@
-js
-const circle = document.getElementById('circle');
-const scoreDisplay = document.getElementById('score');
-const restartBtn = document.getElementById('restart-btn');
-const gameOverText = document.getElementById('game-over');
-const popSound = document.getElementById('pop-sound');
-const missSound = document.getElementById('miss-sound');
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const hitSound = document.getElementById("hitSound");
 
 let score = 0;
-let circleTimeout;
-let gameActive = true;
+document.getElementById("score").innerText = score;
 
-const colors = ['#ff416c', '#ff4b2b', '#ff85a2', '#ff6f91', '#ff9a9e'];
+const player = {
+    x: 180,
+    y: 450,
+    width: 40,
+    height: 40,
+    color: "#00FFDD",
+    speed: 5
+};
 
-function getRandomPosition() {
-  const container = document.getElementById('game-container');
-  const containerRect = container.getBoundingClientRect();
-  const circleSize = circle.offsetWidth;
+let obstacles = [];
+let obstacleSpeed = 3;
 
-  const x = Math.random() * (containerRect.width - circleSize);
-  const y = Math.random() * (containerRect.height - circleSize - 100) + 80; // para não ficar atrás do texto
+// Controle do jogador
+const keys = {};
+document.addEventListener("keydown", (e) => keys[e.key] = true);
+document.addEventListener("keyup", (e) => keys[e.key] = false);
 
-  return { x, y };
+// Criar obstáculos
+function createObstacle() {
+    const width = Math.random() * 50 + 30;
+    const x = Math.random() * (canvas.width - width);
+    const color = getRandomColor();
+    obstacles.push({x, y: -50, width, height: 20, color});
 }
 
+// Cores aleatórias
 function getRandomColor() {
-  const index = Math.floor(Math.random() * colors.length);
-  return colors[index];
+    const colors = ["#FF3F3F", "#3FFF7F", "#3F8FFF", "#FFF53F", "#FF3FFF"];
+    return colors[Math.floor(Math.random() * colors.length)];
 }
 
-function showCircle() {
-  if (!gameActive) return;
-
-  const { x, y } = getRandomPosition();
-  const color = getRandomColor();
-
-  circle.style.left = `${x}px`;
-  circle.style.top = `${y}px`;
-  circle.style.backgroundColor = color;
-  circle.style.boxShadow = `
-    0 0 15px 5px ${color},
-    inset 0 0 15px 5px ${shadeColor(color, 30)}
-  `;
-  circle.style.display = 'block';
-
-  circleTimeout = setTimeout(() => {
-    miss();
-  }, 1500);
+// Atualizar posição do jogador
+function movePlayer() {
+    if(keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+    if(keys["ArrowRight"] && player.x + player.width < canvas.width) player.x += player.speed;
+    if(keys["ArrowUp"] && player.y > 0) player.y -= player.speed;
+    if(keys["ArrowDown"] && player.y + player.height < canvas.height) player.y += player.speed;
 }
 
-function shadeColor(color, percent) {
-  // função para escurecer a cor
-  let f = parseInt(color.slice(1),16),
-      t = 0,
-      R = f>>16,
-      G = f>>8&0x00FF,
-      B = f&0x0000FF;
-  return "#" + (0x1000000 + (Math.round((t-R)*percent/100)+R)*0x10000 + (Math.round((t-G)*percent/100)+G)*0x100 + (Math.round((t-B)*percent/100)+B)).toString(16).slice(1);
+// Checar colisão
+function checkCollision(rect1, rect2) {
+    return !(rect1.x > rect2.x + rect2.width ||
+             rect1.x + rect1.width < rect2.x ||
+             rect1.y > rect2.y + rect2.height ||
+             rect1.y + rect1.height < rect2.y);
 }
 
-function miss() {
-  if (!gameActive) return;
+// Atualizar jogo
+function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  circle.style.display = 'none';
-  missSound.currentTime = 0;
-  missSound.play();
+    // Mover jogador
+    movePlayer();
 
-  gameOverText.textContent = 'Game Over! Você perdeu!';
-  gameOverText.style.display = 'block';
-  restartBtn.style.display = 'inline-block';
-  gameActive = false;
+    // Desenhar jogador
+    ctx.fillStyle = player.color;
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    // Desenhar obstáculos
+    for(let i = obstacles.length -1; i >=0; i--) {
+        let obs = obstacles[i];
+        obs.y += obstacleSpeed;
+        ctx.fillStyle = obs.color;
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+
+        // Checar colisão
+        if(checkCollision(player, obs)) {
+            hitSound.play();
+            alert("Fim de jogo! Sua pontuação: " + score);
+            document.location.reload();
+        }
+
+        // Remover obstáculos fora da tela
+        if(obs.y > canvas.height) {
+            obstacles.splice(i,1);
+            score++;
+            document.getElementById("score").innerText = score;
+            // Aumenta velocidade a cada 5 pontos
+            if(score % 5 === 0) obstacleSpeed += 0.5;
+        }
+    }
+
+    requestAnimationFrame(update);
 }
 
-function hit() {
-  if (!gameActive) return;
+// Criar obstáculos a cada 1.2 segundos
+setInterval(createObstacle, 1200);
 
-  clearTimeout(circleTimeout);
-
-  score++;
-  scoreDisplay.textContent = score;
-  popSound.currentTime = 0;
-  popSound.play();
-
-  showCircle();
-}
-
-circle.addEventListener('click', hit);
-
-restartBtn.addEventListener('click', () => {
-  score = 0;
-  scoreDisplay.textContent = score;
-  gameOverText.style.display = 'none';
-  restartBtn.style.display = 'none';
-  gameActive = true;
-  showCircle();
-});
-
-// Começa o jogo
-showCircle();
+// Iniciar jogo
+update();
