@@ -3,12 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Corrida de Cores</title>
+<title>Corrida de Estrelas</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>🏁 Corrida de Cores</h1>
+<h1>🌟 Corrida de Estrelas</h1>
 <canvas id="gameCanvas"></canvas>
+
+<div id="winnerScreen" class="hidden">
+    <h2 id="winnerText"></h2>
+    <button onclick="restartGame()">🔄 Jogar Novamente</button>
+</div>
+
 <audio id="ponto" src="ponto.mp3"></audio>
 <audio id="colisao" src="colisao.mp3"></audio>
 <script src="script.js"></script>
