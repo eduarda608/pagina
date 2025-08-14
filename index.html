@@ -2,47 +2,34 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Neon Duel - 2 Jogadores</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Galaxy Rumble — 1v1 Neon</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="hud">
-    <div class="score">
-      <span class="p1">🟣 P1: <b id="scoreP1">0</b></span>
-      <span class="mid">NEON DUEL</span>
-      <span class="p2">🟢 P2: <b id="scoreP2">0</b></span>
-    </div>
-    <div class="help">
-      <details>
-        <summary>Controles</summary>
-        <div class="grid">
-          <div>
-            <h4>Jogador 1 (esquerda)</h4>
-            <p>W/A/S/D = mover</p>
-            <p>V ou Espaço = atirar</p>
-          </div>
-          <div>
-            <h4>Jogador 2 (direita)</h4>
-            <p>Setas = mover</p>
-            <p>Enter = atirar</p>
-          </div>
-        </div>
-        <p>Primeiro a 5 pontos vence. Pegue <b>power-ups</b> luminosos!</p>
-      </details>
-    </div>
+  <div class="container">
+    <header class="topbar">
+      <div class="score p1">P1 <span id="score1">0</span></div>
+      <div class="controls">
+        <button id="btnStart">▶ Iniciar</button>
+        <button id="btnReset">⟲ Reiniciar</button>
+        <button id="btnSound">🔊 Som</button>
+        <div id="status">Pronto — pressione Iniciar</div>
+      </div>
+      <div class="score p2">P2 <span id="score2">0</span></div>
+    </header>
+
+    <main class="gameArea">
+      <canvas id="c" width="1280" height="720" aria-label="Galaxy Rumble"></canvas>
+      <div class="legend">
+        <div><b>P1</b> WASD + F (dash: Shift)</div>
+        <div><b>P2</b> setas + L (dash: /)</div>
+      </div>
+    </main>
+
+    <footer class="foot">Galaxy Rumble • Primeiro a 20 eliminações vence. Feito para impressionar ✨</footer>
   </div>
 
-  <canvas id="game"></canvas>
-
-  <div id="overlay" class="overlay hidden">
-    <div class="panel">
-      <h1 id="title">NEON DUEL</h1>
-      <p id="subtitle">Primeiro a 5 vence</p>
-      <button id="btnStart">Começar</button>
-    </div>
-  </div>
-
-  <script src="game.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
