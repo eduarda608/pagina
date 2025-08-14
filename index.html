@@ -1,38 +1,19 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Neon Bloom — Jogo Colorido</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Coletar Itens</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="ui">
-    <h1>Neon Bloom ✨</h1>
-    <div id="topbar">
-      <div>Score: <span id="score">0</span></div>
-      <div>Nível: <span id="level">1</span></div>
-      <div>Combo: <span id="combo">0</span></div>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="scoreboard">
+            <p>Pontuação: <span id="score">0</span></p>
+            <p id="gameOverMessage"></p>
+        </div>
     </div>
-    <div id="hint">Use teclado / toque / mouse para mover • Toque para começar</div>
-  </div>
-
-  <div id="game-area">
-    <canvas id="game"></canvas>
-    <div id="overlay"></div>
-  </div>
-
-  <!-- Controls small -->
-  <div id="controls">
-    <button id="btnMute">🔊</button>
-    <button id="btnRestart">Reiniciar</button>
-  </div>
-
-  <!-- Sounds (external) -->
-  <audio id="sfxCollect" src="https://freesound.org/data/previews/341/341695_5260870-lq.mp3" preload="auto"></audio>
-  <audio id="sfxHit" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3" preload="auto"></audio>
-  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2021/10/11/audio_6d2c3d8b8a.mp3?filename=retro-arcade-110210.mp3" preload="auto" loop></audio>
-
-  <script src="script.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
