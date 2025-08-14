@@ -1,3 +1,99 @@
-#canvas {
-  border: 1px solid #ccc;
+css
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at center, #ff9a9e, #fad0c4, #fad0c4);
+  font-family: 'Fredoka One', cursive;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  overflow: hidden;
+  color: #333;
+}
+
+#game-container {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 30px 40px;
+  border-radius: 25px;
+  width: 400px;
+  height: 480px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  position: relative;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 12px 0;
+  font-size: 2.4em;
+  color: #ff416c;
+  text-shadow: 0 0 8px #ff416c;
+}
+
+p {
+  margin: 12px 0;
+  font-size: 1.1em;
+}
+
+#circle {
+  width: 90px;
+  height: 90px;
+  background: #ff416c;
+  border-radius: 50%;
+  position: absolute;
+  box-shadow:
+    0 0 15px 5px #ff416c,
+    inset 0 0 15px 5px #ff85a2;
+  cursor: pointer;
+  animation: pulse 1.6s infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: none; /* Escondido inicialmente, aparece via JS */
+}
+
+#circle:hover {
+  transform: scale(1.2);
+  box-shadow:
+    0 0 25px 10px #ff416c,
+    inset 0 0 25px 10px #ff85a2;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 15px 5px #ff416c,
+      inset 0 0 15px 5px #ff85a2;
+  }
+  50% {
+    box-shadow:
+      0 0 30px 12px #ff85a2,
+      inset 0 0 30px 12px #ff416c;
+  }
+}
+
+#restart-btn {
+  margin-top: 30px;
+  padding: 14px 40px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 40px;
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 0 20px #ff416c;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+  display: none; /* Escondido inicialmente, aparece via JS */
+}
+
+#restart-btn:hover {
+  background: linear-gradient(45deg, #ff4b2b, #ff416c);
+  box-shadow: 0 0 30px #ff4b2b;
+}
+
+#game-over {
+  font-weight: bold;
+  color: #ff4757;
+  margin-top: 20px;
+  display: none; /* Escondido inicialmente, aparece via JS */
 }
