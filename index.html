@@ -3,49 +3,36 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Meu Pet Colorido</title>
+  <title>Neon Bloom — Jogo Colorido</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Meu Pet Colorido ✨</h1>
-    <div id="hud">
-      <div>Fome: <span id="hungerVal">80</span>%</div>
-      <div>Felicidade: <span id="happyVal">70</span>%</div>
-      <div>Limpeza: <span id="cleanVal">60</span>%</div>
-      <div>Pontos: <span id="scoreVal">0</span></div>
+  <div id="ui">
+    <h1>Neon Bloom ✨</h1>
+    <div id="topbar">
+      <div>Score: <span id="score">0</span></div>
+      <div>Nível: <span id="level">1</span></div>
+      <div>Combo: <span id="combo">0</span></div>
     </div>
-  </header>
+    <div id="hint">Use teclado / toque / mouse para mover • Toque para começar</div>
+  </div>
 
-  <main>
-    <div id="game-wrap">
-      <canvas id="petCanvas" width="360" height="360" aria-label="Tela do pet"></canvas>
-      <div id="effects"></div>
-    </div>
+  <div id="game-area">
+    <canvas id="game"></canvas>
+    <div id="overlay"></div>
+  </div>
 
-    <div id="controls">
-      <button id="feedBtn" class="big">🍎 Alimentar</button>
-      <button id="playBtn" class="big">🎲 Brincar</button>
-      <button id="washBtn" class="big">🛁 Banho</button>
-    </div>
+  <!-- Controls small -->
+  <div id="controls">
+    <button id="btnMute">🔊</button>
+    <button id="btnRestart">Reiniciar</button>
+  </div>
 
-    <div id="mini">
-      <div id="playArea" class="hidden">
-        <p>Toque rápido na bolinha!</p>
-        <div id="miniGame">
-          <div id="target" class="bubble"></div>
-        </div>
-        <button id="endMini">Sair</button>
-      </div>
-    </div>
-  </main>
-
-  <!-- Sons -->
-  <audio id="soundEat" src="https://freesound.org/data/previews/341/341695_5260870-lq.mp3" preload="auto"></audio>
-  <audio id="soundPlay" src="https://freesound.org/data/previews/159/159408_2777380-lq.mp3" preload="auto"></audio>
-  <audio id="soundWash" src="https://freesound.org/data/previews/373/373666_6649817-lq.mp3" preload="auto"></audio>
-  <audio id="soundHappy" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3" preload="auto"></audio>
+  <!-- Sounds (external) -->
+  <audio id="sfxCollect" src="https://freesound.org/data/previews/341/341695_5260870-lq.mp3" preload="auto"></audio>
+  <audio id="sfxHit" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3" preload="auto"></audio>
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2021/10/11/audio_6d2c3d8b8a.mp3?filename=retro-arcade-110210.mp3" preload="auto" loop></audio>
 
   <script src="script.js"></script>
 </body>
-</html>v
+</html>
