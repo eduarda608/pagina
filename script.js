@@ -1,95 +1,99 @@
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const bola = {
-  x: canvas.width / 2,
-  y: canvas.height / 2,
-  vx: 5,
-  vy: 5,
-  raio: 10
-};
-const raquete1 = {
-  x: 10,
-  y: canvas.height / 2 - 50,
-  largura: 10,
-  altura: 100,
-  velocidade: 5
-};
-const raquete2 = {
-  x: canvas.width - 20,
-  y: canvas.height / 2 - 50,
-  largura: 10,
-  altura: 100,
-  velocidade: 5
-};
-let pontos1 = 0;
-let pontos2 = 0;
+js
+const circle = document.getElementById('circle');
+const scoreDisplay = document.getElementById('score');
+const restartBtn = document.getElementById('restart-btn');
+const gameOverText = document.getElementById('game-over');
+const popSound = document.getElementById('pop-sound');
+const missSound = document.getElementById('miss-sound');
 
-function desenhar() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = 'black';
-  ctx.fillRect(raquete1.x, raquete1.y, raquete1.largura, raquete1.altura);
-  ctx.fillRect(raquete2.x, raquete2.y, raquete2.largura, raquete2.altura);
-  ctx.beginPath();
-  ctx.arc(bola.x, bola.y, bola.raio, 0, 2 * Math.PI);
-  ctx.fillStyle = 'black';
-  ctx.fill();
-  ctx.font = '24px Arial';
-  ctx.fillStyle = 'black';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.fillText(`Pontos: ${pontos1}`, 10, 10);
-  ctx.textAlign = 'right';
-  ctx.fillText(`Pontos: ${pontos2}`, canvas.width - 10, 10);
+let score = 0;
+let circleTimeout;
+let gameActive = true;
+
+const colors = ['#ff416c', '#ff4b2b', '#ff85a2', '#ff6f91', '#ff9a9e'];
+
+function getRandomPosition() {
+  const container = document.getElementById('game-container');
+  const containerRect = container.getBoundingClientRect();
+  const circleSize = circle.offsetWidth;
+
+  const x = Math.random() * (containerRect.width - circleSize);
+  const y = Math.random() * (containerRect.height - circleSize - 100) + 80; // para não ficar atrás do texto
+
+  return { x, y };
 }
 
-function atualizar() {
-  bola.x += bola.vx;
-  bola.y += bola.vy;
-
-  if (bola.y < 0 || bola.y > canvas.height) {
-    bola.vy = -bola.vy;
-  }
-
-  if (bola.x < raquete1.x + raquete1.largura && bola.y > raquete1.y && bola.y < raquete1.y + raquete1.altura) {
-    bola.vx = -bola.vx;
-  }
-
-  if (bola.x > raquete2.x - bola.raio && bola.y > raquete2.y && bola.y < raquete2.y + raquete2.altura) {
-    bola.vx = -bola.vx;
-  }
-
-  if (bola.x < 0) {
-    pontos2++;
-    bola.x = canvas.width / 2;
-    bola.y = canvas.height / 2;
-  }
-
-  if (bola.x > canvas.width) {
-    pontos1++;
-    bola.x = canvas.width / 2;
-    bola.y = canvas.height / 2;
-  }
+function getRandomColor() {
+  const index = Math.floor(Math.random() * colors.length);
+  return colors[index];
 }
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'w') {
-    raquete1.y -= raquete1.velocidade;
-  }
+function showCircle() {
+  if (!gameActive) return;
 
-  if (e.key === 's') {
-    raquete1.y += raquete1.velocidade;
-  }
+  const { x, y } = getRandomPosition();
+  const color = getRandomColor();
 
-  if (e.key === 'ArrowUp') {
-    raquete2.y -= raquete2.velocidade;
-  }
+  circle.style.left = `${x}px`;
+  circle.style.top = `${y}px`;
+  circle.style.backgroundColor = color;
+  circle.style.boxShadow = `
+    0 0 15px 5px ${color},
+    inset 0 0 15px 5px ${shadeColor(color, 30)}
+  `;
+  circle.style.display = 'block';
 
-  if (e.key === 'ArrowDown') {
-    raquete2.y += raquete2.velocidade;
-  }
+  circleTimeout = setTimeout(() => {
+    miss();
+  }, 1500);
+}
+
+function shadeColor(color, percent) {
+  // função para escurecer a cor
+  let f = parseInt(color.slice(1),16),
+      t = 0,
+      R = f>>16,
+      G = f>>8&0x00FF,
+      B = f&0x0000FF;
+  return "#" + (0x1000000 + (Math.round((t-R)*percent/100)+R)*0x10000 + (Math.round((t-G)*percent/100)+G)*0x100 + (Math.round((t-B)*percent/100)+B)).toString(16).slice(1);
+}
+
+function miss() {
+  if (!gameActive) return;
+
+  circle.style.display = 'none';
+  missSound.currentTime = 0;
+  missSound.play();
+
+  gameOverText.textContent = 'Game Over! Você perdeu!';
+  gameOverText.style.display = 'block';
+  restartBtn.style.display = 'inline-block';
+  gameActive = false;
+}
+
+function hit() {
+  if (!gameActive) return;
+
+  clearTimeout(circleTimeout);
+
+  score++;
+  scoreDisplay.textContent = score;
+  popSound.currentTime = 0;
+  popSound.play();
+
+  showCircle();
+}
+
+circle.addEventListener('click', hit);
+
+restartBtn.addEventListener('click', () => {
+  score = 0;
+  scoreDisplay.textContent = score;
+  gameOverText.style.display = 'none';
+  restartBtn.style.display = 'none';
+  gameActive = true;
+  showCircle();
 });
 
-setInterval(() => {
-  desenhar();
-  atualizar();
-}, 16);
+// Começa o jogo
+showCircle();
