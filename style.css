@@ -1,37 +1,68 @@
-body {
-    background-color: #f0f0f0;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+:root{
+  --bg1: #ff5f6d;
+  --bg2: #ffc371;
+  --accent: #7bf1a8;
+  --glass: rgba(255,255,255,0.12);
+  --neon: rgba(255,255,255,0.18);
 }
 
-.game-container {
-    position: relative;
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+
+html,body,#game{height:100%}
+body{
+  background: linear-gradient(135deg,var(--bg1),var(--bg2));
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-#gameCanvas {
-    background-color: #2c3e50;
-    border: 2px solid #ecf0f1;
+/* UI container over canvas */
+#ui{
+  position: absolute;
+  top:18px;
+  left:18px;
+  z-index:10;
+  color:#fff;
+  text-shadow:0 2px 8px rgba(0,0,0,0.4);
+}
+#ui h1{
+  font-size:20px;
+  margin-bottom:6px;
+  letter-spacing:1px;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.25));
+}
+#score{font-weight:700;margin-bottom:6px;}
+#tips{font-size:12px;opacity:0.9;margin-bottom:8px;}
+#startBtn{
+  background:linear-gradient(90deg,#ffffff33,#ffffff11);
+  border:1px solid rgba(255,255,255,0.25);
+  padding:8px 12px;
+  border-radius:10px;
+  color:#fff;
+  cursor:pointer;
+  backdrop-filter: blur(6px);
 }
 
-#scoreboard {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #ecf0f1;
-    font-size: 20px;
-    font-weight: bold;
-    z-index: 10;
+/* canvas fills screen */
+canvas{
+  display:block;
+  width:100vw;
+  height:100vh;
 }
 
-#gameOverMessage {
-    color: red;
-    font-size: 30px;
-    font-weight: bold;
-    text-align: center;
+/* flashy instruction when paused */
+.flash {
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0%{transform:scale(1);filter:brightness(1)}
+  50%{transform:scale(1.02);filter:brightness(1.12)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+
+/* small responsiveness tip for mobile */
+@media (max-width:600px){
+  #ui h1{font-size:18px}
+  #score{font-size:16px}
 }
