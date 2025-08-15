@@ -1,68 +1,33 @@
-:root{
-  --bg1: #ff5f6d;
-  --bg2: #ffc371;
-  --accent: #7bf1a8;
-  --glass: rgba(255,255,255,0.12);
-  --neon: rgba(255,255,255,0.18);
-}
-
-*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-
-html,body,#game{height:100%}
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
+html, body, canvas{width:100%;height:100%;overflow:hidden;}
 body{
-  background: linear-gradient(135deg,var(--bg1),var(--bg2));
-  overflow:hidden;
+  background: linear-gradient(135deg,#0f2027,#2c5364);
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
 }
-
-/* UI container over canvas */
 #ui{
-  position: absolute;
-  top:18px;
-  left:18px;
+  position:absolute;
+  top:10px;
+  left:10px;
+  color:white;
   z-index:10;
-  color:#fff;
-  text-shadow:0 2px 8px rgba(0,0,0,0.4);
+  text-shadow:0 2px 6px rgba(0,0,0,0.4);
 }
-#ui h1{
-  font-size:20px;
+#scores{
+  display:flex;
+  gap:20px;
+  font-weight:bold;
   margin-bottom:6px;
-  letter-spacing:1px;
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.25));
 }
-#score{font-weight:700;margin-bottom:6px;}
-#tips{font-size:12px;opacity:0.9;margin-bottom:8px;}
 #startBtn{
-  background:linear-gradient(90deg,#ffffff33,#ffffff11);
-  border:1px solid rgba(255,255,255,0.25);
-  padding:8px 12px;
+  padding:8px 14px;
   border-radius:10px;
-  color:#fff;
+  border:none;
   cursor:pointer;
-  backdrop-filter: blur(6px);
+  background:rgba(255,255,255,0.2);
+  color:white;
+  font-weight:bold;
+  backdrop-filter: blur(4px);
 }
-
-/* canvas fills screen */
-canvas{
-  display:block;
-  width:100vw;
-  height:100vh;
-}
-
-/* flashy instruction when paused */
-.flash {
-  animation: pulse 1s infinite;
-}
-@keyframes pulse {
-  0%{transform:scale(1);filter:brightness(1)}
-  50%{transform:scale(1.02);filter:brightness(1.12)}
-  100%{transform:scale(1);filter:brightness(1)}
-}
-
-/* small responsiveness tip for mobile */
-@media (max-width:600px){
-  #ui h1{font-size:18px}
-  #score{font-size:16px}
-}
+canvas{display:block;}
