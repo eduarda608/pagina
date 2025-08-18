@@ -7,61 +7,62 @@ const gameOverDiv = document.getElementById("game-over");
 const finalScore = document.getElementById("final-score");
 const rankingList = document.getElementById("ranking-list");
 
+const goodEmojis = ["😎", "🤑", "🎉", "💖", "🍀"];
+const badEmojis = ["💣", "👻", "😡"];
+
 let score = 0;
 let timeLeft = 30;
+let emojiInterval;
 let timerInterval;
-let gameRunning = false;
 
-function getRandomPosition() {
-  const x = Math.random() * (gameArea.clientWidth - 50);
-  const y = Math.random() * (gameArea.clientHeight - 50);
-  return { x, y };
+function getRandomEmoji() {
+  const all = [...goodEmojis, ...badEmojis];
+  return all[Math.floor(Math.random() * all.length)];
 }
 
-function spawnCircle() {
-  if (!gameRunning) return;
+function spawnEmoji() {
+  const emoji = document.createElement("div");
+  emoji.classList.add("emoji");
+  emoji.textContent = getRandomEmoji();
 
-  const circle = document.createElement("div");
-  circle.classList.add("circle");
+  const left = Math.random() * (gameArea.clientWidth - 40);
+  emoji.style.left = `${left}px`;
+  emoji.style.top = `-40px`;
+  emoji.style.animationDuration = `${2 + Math.random() * 2}s`;
 
-  const { x, y } = getRandomPosition();
-  circle.style.left = `${x}px`;
-  circle.style.top = `${y}px`;
-
-  circle.addEventListener("click", () => {
-    score++;
+  emoji.addEventListener("click", () => {
+    if (goodEmojis.includes(emoji.textContent)) {
+      score += 10;
+    } else {
+      score -= 5;
+    }
     scoreDisplay.textContent = `Pontos: ${score}`;
-    gameArea.removeChild(circle);
-    spawnCircle(); // próximo
+    emoji.remove();
   });
 
-  gameArea.appendChild(circle);
+  gameArea.appendChild(emoji);
 
   setTimeout(() => {
-    if (gameArea.contains(circle)) {
-      gameArea.removeChild(circle);
-      spawnCircle();
+    if (emoji.parentElement) {
+      emoji.remove();
     }
-  }, 1000);
+  }, 4000);
 }
 
 function startGame() {
   score = 0;
   timeLeft = 30;
-  gameRunning = true;
   scoreDisplay.textContent = "Pontos: 0";
   timerDisplay.textContent = "Tempo: 30s";
-  gameArea.innerHTML = "";
   gameOverDiv.classList.add("hidden");
   startBtn.style.display = "none";
   restartBtn.style.display = "inline-block";
+  gameArea.innerHTML = "";
 
-  spawnCircle();
-
+  emojiInterval = setInterval(spawnEmoji, 800);
   timerInterval = setInterval(() => {
     timeLeft--;
     timerDisplay.textContent = `Tempo: ${timeLeft}s`;
-
     if (timeLeft <= 0) {
       endGame();
     }
@@ -69,37 +70,36 @@ function startGame() {
 }
 
 function endGame() {
-  gameRunning = false;
+  clearInterval(emojiInterval);
   clearInterval(timerInterval);
-  gameArea.innerHTML = "";
   gameOverDiv.classList.remove("hidden");
-  finalScore.textContent = `Você fez ${score} pontos!`;
-  updateRanking(score);
+  finalScore.textContent = `Sua pontuação: ${score}`;
+  saveScore(score);
 }
 
 function restartGame() {
   startGame();
 }
 
-function updateRanking(newScore) {
-  let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
-  ranking.push(newScore);
-  ranking.sort((a, b) => b - a);
-  ranking = ranking.slice(0, 5); // top 5
-  localStorage.setItem("ranking", JSON.stringify(ranking));
-  showRanking();
+function saveScore(newScore) {
+  let scores = JSON.parse(localStorage.getItem("emojiRanking")) || [];
+  scores.push(newScore);
+  scores.sort((a, b) => b - a);
+  scores = scores.slice(0, 5);
+  localStorage.setItem("emojiRanking", JSON.stringify(scores));
+  updateRanking();
 }
 
-function showRanking() {
-  const ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+function updateRanking() {
+  const scores = JSON.parse(localStorage.getItem("emojiRanking")) || [];
   rankingList.innerHTML = "";
-  ranking.forEach((score, index) => {
+  scores.forEach((s, i) => {
     const li = document.createElement("li");
-    li.textContent = `${score} pontos`;
+    li.textContent = `${i + 1}º - ${s} pontos`;
     rankingList.appendChild(li);
   });
 }
 
 startBtn.addEventListener("click", startGame);
 restartBtn.addEventListener("click", restartGame);
-window.addEventListener("load", showRanking);
+window.addEventListener("load", updateRanking);
