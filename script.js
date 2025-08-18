@@ -1,129 +1,105 @@
-const rows = 15;
-const cols = 15;
+const gameArea = document.getElementById('game-area');
+const spaceship = document.getElementById('spaceship');
+const scoreDisplay = document.getElementById('score');
 
-let gameDiv = document.getElementById('game');
-let timerSpan = document.getElementById('timer');
-let scoreSpan = document.getElementById('score');
-let playerDisplay = document.getElementById('player-display');
+let score = 0;
+let spaceshipX = 180;
+const gameWidth = 400;
+const spaceshipWidth = 40;
+const objectSize = 30;
 
-let startScreen = document.getElementById('start-screen');
-let gameScreen = document.getElementById('game-screen');
-let rankingScreen = document.getElementById('ranking-screen');
+let fallingObjects = [];
+let gameInterval;
+let spawnInterval;
+let speed = 2;
 
-let rankingList = document.getElementById('ranking-list');
-let playerNameInput = document.getElementById('player-name');
-let startBtn = document.getElementById('start-btn');
-let restartBtn = document.getElementById('restart-btn');
-let playAgainBtn = document.getElementById('play-again-btn');
-
-let moveSound = document.getElementById('move-sound');
-let hitSound = document.getElementById('hit-sound');
-let winSound = document.getElementById('win-sound');
-
-let maze = [];
-let playerPos = { x: 1, y: 1 };
-let exitPos = { x: cols - 2, y: rows - 2 };
-
-let timer = 0;
-let interval;
-let gameRunning = false;
-
-playerNameInput.addEventListener('input', () => {
-  startBtn.disabled = playerNameInput.value.trim() === '';
-});
-
-startBtn.addEventListener('click', () => {
-  playerDisplay.textContent = playerNameInput.value.trim();
-  startScreen.classList.add('hidden');
-  gameScreen.classList.remove('hidden');
-  rankingScreen.classList.add('hidden');
-  init();
-});
-
-restartBtn.addEventListener('click', () => {
-  init();
-});
-
-playAgainBtn.addEventListener('click', () => {
-  startScreen.classList.remove('hidden');
-  gameScreen.classList.add('hidden');
-  rankingScreen.classList.add('hidden');
-  playerNameInput.value = '';
-  startBtn.disabled = true;
-  playerNameInput.focus();
-});
-
-function createMaze() {
-  maze = Array(rows).fill().map(() => Array(cols).fill(0));
-  
-  for(let r=0; r<rows; r++) {
-    for(let c=0; c<cols; c++) {
-      if(r === 0 || c === 0 || r === rows-1 || c === cols-1) {
-        maze[r][c] = 1;
-      } else if(Math.random() < 0.25 && !(r === 1 && c ===1) && !(r === exitPos.y && c === exitPos.x)) {
-        maze[r][c] = 1;
-      }
-    }
-  }
+function updateScore(value) {
+  score += value;
+  if (score < 0) score = 0;
+  scoreDisplay.textContent = score;
 }
 
-function drawMaze(flashCell = null) {
-  gameDiv.innerHTML = '';
-  gameDiv.style.gridTemplateColumns = `repeat(${cols}, 30px)`;
-  gameDiv.style.gridTemplateRows = `repeat(${rows}, 30px)`;
+function createFallingObject() {
+  const obj = document.createElement('div');
+  obj.classList.add('falling-object');
 
-  for(let r=0; r<rows; r++) {
-    for(let c=0; c<cols; c++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      if(maze[r][c] === 1) cell.classList.add('wall');
-      if(r === playerPos.y && c === playerPos.x) cell.classList.add('player');
-      if(r === exitPos.y && c === exitPos.x) cell.classList.add('exit');
-      if(flashCell && flashCell.x === c && flashCell.y === r) {
-        cell.classList.add('flash');
-      }
-      gameDiv.appendChild(cell);
-    }
-  }
-}
-
-function movePlayer(dx, dy) {
-  if(!gameRunning) return;
-  let newX = playerPos.x + dx;
-  let newY = playerPos.y + dy;
-
-  if(maze[newY][newX] === 0) {
-    playerPos.x = newX;
-    playerPos.y = newY;
-    moveSound.currentTime = 0;
-    moveSound.play();
-    drawMaze({x: newX, y: newY});
-    checkWin();
+  const isStar = Math.random() < 0.7; // 70% chance estrela, 30% meteoro
+  if (isStar) {
+    obj.classList.add('star');
   } else {
-    hitSound.currentTime = 0;
-    hitSound.play();
+    obj.classList.add('meteor');
+  }
+
+  obj.style.left = Math.floor(Math.random() * (gameWidth - objectSize)) + 'px';
+  obj.style.top = '-40px';
+
+  gameArea.appendChild(obj);
+
+  fallingObjects.push({
+    element: obj,
+    type: isStar ? 'star' : 'meteor',
+    y: -40,
+  });
+}
+
+function moveFallingObjects() {
+  for (let i = fallingObjects.length - 1; i >= 0; i--) {
+    const obj = fallingObjects[i];
+    obj.y += speed;
+    obj.element.style.top = obj.y + 'px';
+
+    // Colisão com nave
+    if (
+      obj.y + objectSize >= 560 && // vertical colisão
+      obj.y <= 600 &&
+      parseInt(obj.element.style.left) + objectSize > spaceshipX &&
+      parseInt(obj.element.style.left) < spaceshipX + spaceshipWidth
+    ) {
+      if (obj.type === 'star') {
+        updateScore(10);
+      } else {
+        updateScore(-15);
+      }
+      gameArea.removeChild(obj.element);
+      fallingObjects.splice(i, 1);
+      continue;
+    }
+
+    // Saiu da tela (chão)
+    if (obj.y > 600) {
+      if (obj.type === 'star') {
+        updateScore(-5);
+      }
+      gameArea.removeChild(obj.element);
+      fallingObjects.splice(i, 1);
+    }
   }
 }
 
-function checkWin() {
-  if(playerPos.x === exitPos.x && playerPos.y === exitPos.y) {
-    gameRunning = false;
-    clearInterval(interval);
-    winSound.play();
-    saveScore(playerNameInput.value.trim(), timer);
-    showRanking();
-    alert(`Parabéns, ${playerNameInput.value.trim()}! Você escapou em ${timer} segundos!`);
+function gameLoop() {
+  moveFallingObjects();
+}
+
+function moveSpaceship(dir) {
+  spaceshipX += dir * 20;
+  if (spaceshipX < 0) spaceshipX = 0;
+  if (spaceshipX > gameWidth - spaceshipWidth) spaceshipX = gameWidth - spaceshipWidth;
+  spaceship.style.left = spaceshipX + 'px';
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') {
+    moveSpaceship(-1);
+  } else if (e.key === 'ArrowRight') {
+    moveSpaceship(1);
   }
-}
+});
 
-function startTimer() {
-  timer = 0;
-  timerSpan.textContent = timer;
-  interval = setInterval(() => {
-    timer++;
-    timerSpan.textContent = timer;
-    updateScore();
-  }, 1000);
-}
+// Começa o jogo
+spawnInterval = setInterval(() => {
+  createFallingObject();
+  // Aumenta a velocidade gradualmente
+  if (speed < 7) speed += 0.02;
+}, 1000);
 
-function updateScore
+gameInterval = setInterval(gameLoop, 20);
