@@ -1,105 +1,120 @@
 const gameArea = document.getElementById('game-area');
-const spaceship = document.getElementById('spaceship');
+const player = document.getElementById('player');
 const scoreDisplay = document.getElementById('score');
 
 let score = 0;
-let spaceshipX = 180;
-const gameWidth = 400;
-const spaceshipWidth = 40;
-const objectSize = 30;
+let isJumping = false;
+let playerBottom = 60;
 
-let fallingObjects = [];
-let gameInterval;
-let spawnInterval;
-let speed = 2;
+const gravity = 3;
+const jumpHeight = 80;
+const jumpDuration = 400; // ms
 
-function updateScore(value) {
-  score += value;
-  if (score < 0) score = 0;
-  scoreDisplay.textContent = score;
-}
+let clouds = [];
+let cloudSpeed = 2;
 
-function createFallingObject() {
-  const obj = document.createElement('div');
-  obj.classList.add('falling-object');
+function createCloud() {
+  const cloud = document.createElement('div');
+  cloud.classList.add('cloud');
+  cloud.style.left = gameArea.clientWidth + 'px';
+  gameArea.appendChild(cloud);
 
-  const isStar = Math.random() < 0.7; // 70% chance estrela, 30% meteoro
-  if (isStar) {
-    obj.classList.add('star');
-  } else {
-    obj.classList.add('meteor');
-  }
-
-  obj.style.left = Math.floor(Math.random() * (gameWidth - objectSize)) + 'px';
-  obj.style.top = '-40px';
-
-  gameArea.appendChild(obj);
-
-  fallingObjects.push({
-    element: obj,
-    type: isStar ? 'star' : 'meteor',
-    y: -40,
+  clouds.push({
+    element: cloud,
+    x: gameArea.clientWidth,
+    width: 80,
   });
 }
 
-function moveFallingObjects() {
-  for (let i = fallingObjects.length - 1; i >= 0; i--) {
-    const obj = fallingObjects[i];
-    obj.y += speed;
-    obj.element.style.top = obj.y + 'px';
+function moveClouds() {
+  for (let i = clouds.length - 1; i >= 0; i--) {
+    let cloud = clouds[i];
+    cloud.x -= cloudSpeed;
+    cloud.element.style.left = cloud.x + 'px';
 
-    // Colisão com nave
-    if (
-      obj.y + objectSize >= 560 && // vertical colisão
-      obj.y <= 600 &&
-      parseInt(obj.element.style.left) + objectSize > spaceshipX &&
-      parseInt(obj.element.style.left) < spaceshipX + spaceshipWidth
-    ) {
-      if (obj.type === 'star') {
-        updateScore(10);
-      } else {
-        updateScore(-15);
-      }
-      gameArea.removeChild(obj.element);
-      fallingObjects.splice(i, 1);
-      continue;
-    }
-
-    // Saiu da tela (chão)
-    if (obj.y > 600) {
-      if (obj.type === 'star') {
-        updateScore(-5);
-      }
-      gameArea.removeChild(obj.element);
-      fallingObjects.splice(i, 1);
+    // Remove nuvem que saiu da tela
+    if (cloud.x + cloud.width < 0) {
+      gameArea.removeChild(cloud.element);
+      clouds.splice(i, 1);
+      updateScore();
     }
   }
 }
 
-function gameLoop() {
-  moveFallingObjects();
+function updateScore() {
+  score++;
+  scoreDisplay.textContent = score;
 }
 
-function moveSpaceship(dir) {
-  spaceshipX += dir * 20;
-  if (spaceshipX < 0) spaceshipX = 0;
-  if (spaceshipX > gameWidth - spaceshipWidth) spaceshipX = gameWidth - spaceshipWidth;
-  spaceship.style.left = spaceshipX + 'px';
+function jump() {
+  if (isJumping) return;
+  isJumping = true;
+
+  let upInterval = setInterval(() => {
+    if (playerBottom >= 60 + jumpHeight) {
+      clearInterval(upInterval);
+
+      let downInterval = setInterval(() => {
+        if (playerBottom <= 60) {
+          clearInterval(downInterval);
+          isJumping = false;
+        }
+        playerBottom -= gravity;
+        player.style.bottom = playerBottom + 'px';
+      }, 20);
+
+    } else {
+      playerBottom += gravity;
+      player.style.bottom = playerBottom + 'px';
+    }
+  }, 20);
+}
+
+function checkCollision() {
+  // Verifica se jogador está em uma nuvem
+  let onCloud = false;
+  for (let cloud of clouds) {
+    const cloudLeft = cloud.x;
+    const cloudRight = cloud.x + cloud.width;
+    const playerLeft = parseInt(player.style.left);
+    const playerRight = playerLeft + 40;
+    const playerBottomPos = playerBottom;
+
+    if (
+      playerRight > cloudLeft &&
+      playerLeft < cloudRight &&
+      playerBottomPos <= 100 && // altura da nuvem (50 + 40 de tamanho do player)
+      playerBottomPos >= 50
+    ) {
+      onCloud = true;
+      break;
+    }
+  }
+  if (!onCloud && !isJumping) {
+    alert(`Game Over! Sua pontuação foi: ${score}`);
+    resetGame();
+  }
+}
+
+function resetGame() {
+  score = 0;
+  scoreDisplay.textContent = score;
+  clouds.forEach(c => gameArea.removeChild(c.element));
+  clouds = [];
+  playerBottom = 60;
+  player.style.bottom = playerBottom + 'px';
 }
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') {
-    moveSpaceship(-1);
-  } else if (e.key === 'ArrowRight') {
-    moveSpaceship(1);
+  if (e.code === 'Space') {
+    jump();
   }
 });
 
-// Começa o jogo
-spawnInterval = setInterval(() => {
-  createFallingObject();
-  // Aumenta a velocidade gradualmente
-  if (speed < 7) speed += 0.02;
-}, 1000);
+createCloud();
+setInterval(createCloud, 2000);
 
-gameInterval = setInterval(gameLoop, 20);
+setInterval(() => {
+  moveClouds();
+  checkCollision();
+}, 20);
