@@ -1,80 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Corrida Dupla — Arcade</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrida de Carros</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Tela inicial: nomes -->
-  <div id="start-screen" class="overlay visible">
-    <div class="panel">
-      <h1>🏁 Corrida Dupla — Arcade</h1>
-      <p>Digite os nomes e corram! Teclas: <b>A</b> (Jogador 1) e <b>L</b> (Jogador 2).</p>
-      <form id="name-form">
-        <label>Jogador 1</label>
-        <input id="name1" type="text" placeholder="Ex: Ana" maxlength="12" required />
-        <label>Jogador 2</label>
-        <input id="name2" type="text" placeholder="Ex: Bruno" maxlength="12" required />
-        <button type="submit">Iniciar Corrida</button>
-      </form>
-      <small>Dica: segure a tecla para acelerar. Soltou, o carro perde velocidade.</small>
+    <h1>Jogo de Corrida</h1>
+
+    <div id="input-nomes">
+        <input type="text" id="player1" placeholder="Nome do Jogador 1">
+        <input type="text" id="player2" placeholder="Nome do Jogador 2">
+        <button onclick="startGame()">Iniciar Corrida</button>
     </div>
-  </div>
 
-  <!-- Tela de vencedor -->
-  <div id="winner-screen" class="overlay">
-    <div class="panel">
-      <h2 id="winner-text">🏆 —</h2>
-      <div class="actions">
-        <button id="play-again">Jogar de novo</button>
-        <button id="change-names">Trocar nomes</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- HUD -->
-  <div id="hud">
-    <div class="badge" id="p1-badge">Jogador 1</div>
-    <div class="badge" id="p2-badge">Jogador 2</div>
-    <div class="howto">Acelere: <b>A</b> | <b>L</b></div>
-  </div>
-
-  <!-- Pista -->
-  <div id="track">
-    <div class="lane lane-top">
-      <div class="car car-red" id="car1">
-        <div class="shadow"></div>
-        <div class="body">
-          <div class="glass"></div>
-          <div class="light left"></div>
-          <div class="light right"></div>
-          <div class="wheel front"></div>
-          <div class="wheel back"></div>
+    <div id="game" style="display:none;">
+        <div class="track">
+            <div id="car1" class="car">🚗</div>
         </div>
-      </div>
-    </div>
-
-    <div class="lane lane-bottom">
-      <div class="car car-blue" id="car2">
-        <div class="shadow"></div>
-        <div class="body">
-          <div class="glass"></div>
-          <div class="light left"></div>
-          <div class="light right"></div>
-          <div class="wheel front"></div>
-          <div class="wheel back"></div>
+        <div class="track">
+            <div id="car2" class="car">🏎️</div>
         </div>
-      </div>
+        <p id="winner"></p>
+        <button onclick="restartGame()">Reiniciar Jogo</button>
     </div>
 
-    <!-- Linha de chegada xadrez -->
-    <div id="finish">
-      <div class="flag"></div>
-    </div>
-  </div>
-
-  <script src="game.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
