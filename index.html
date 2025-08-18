@@ -1,35 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Escape do Labirinto</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Caça Estelar</title>
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="start-screen" class="overlay">
-    <h1>Escape do Labirinto</h1>
-    <input type="text" id="player-name" placeholder="Digite seu nome" maxlength="15" />
-    <button id="start-btn" disabled>Iniciar Jogo</button>
+  <h1>Caça Estelar 🚀</h1>
+  <p>Pontuação: <span id="score">0</span></p>
+  <div id="game-area">
+    <div id="spaceship"></div>
   </div>
-
-  <div id="game-screen" class="hidden">
-    <h2>Jogador: <span id="player-display"></span></h2>
-    <div id="game"></div>
-    <p id="info">Use as setas do teclado para se mover. Tempo: <span id="timer">0</span> s | Pontos: <span id="score">0</span></p>
-    <button id="restart-btn">Reiniciar</button>
-  </div>
-
-  <div id="ranking-screen" class="hidden">
-    <h2>Ranking - Melhores Tempos</h2>
-    <ol id="ranking-list"></ol>
-    <button id="play-again-btn">Jogar Novamente</button>
-  </div>
-
-  <audio id="move-sound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-  <audio id="hit-sound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-  <audio id="win-sound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-
-  <script src="game.js"></script>
+  <p>Use as setas ← e → para mover a nave</p>
+  <script src="script.js"></script>
 </body>
 </html>
