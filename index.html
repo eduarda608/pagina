@@ -1,18 +1,26 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Salto das Nuvens</title>
-<link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corrida Dimensional</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Salto das Nuvens ☁️</h1>
-  <p>Pontuação: <span id="score">0</span></p>
-  <div id="game-area">
-    <div id="player"></div>
-  </div>
-  <p>Pressione Espaço para pular</p>
-  <script src="script.js"></script>
+<div class="game-container">
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div class="ui">
+        <div class="score">Pontuação: <span id="score">0</span></div>
+        <div class="game-over hidden" id="gameOverScreen">
+            <h2>Fim de Jogo!</h2>
+            <p>Seu nome: <input type="text" id="playerName" placeholder="Digite seu nome"></p>
+            <p>Score: <span id="finalScore">0</span></p>
+            <button id="restartBtn">Recomeçar</button>
+            <h3>Ranking:</h3>
+            <ol id="leaderboard"></ol>
+        </div>
+    </div>
+</div>
+<script src="game.js"></script>
 </body>
-</html>
+</h
