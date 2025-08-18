@@ -1,33 +1,78 @@
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
-html, body, canvas{width:100%;height:100%;overflow:hidden;}
-body{
-  background: linear-gradient(135deg,#0f2027,#2c5364);
-  display:flex;
-  justify-content:center;
-  align-items:center;
+body {
+  margin: 0;
+  background-color: #222;
+  color: #fff;
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
 }
-#ui{
-  position:absolute;
-  top:10px;
-  left:10px;
-  color:white;
-  z-index:10;
-  text-shadow:0 2px 6px rgba(0,0,0,0.4);
+
+#game {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #87ceeb, #ffffff);
+  position: relative;
+  overflow: hidden;
 }
-#scores{
-  display:flex;
-  gap:20px;
-  font-weight:bold;
-  margin-bottom:6px;
+
+#player {
+  width: 50px;
+  height: 50px;
+  background-color: red;
+  position: absolute;
+  bottom: 20px;
+  left: 50px;
+  border-radius: 10px;
 }
-#startBtn{
-  padding:8px 14px;
-  border-radius:10px;
-  border:none;
-  cursor:pointer;
-  background:rgba(255,255,255,0.2);
-  color:white;
-  font-weight:bold;
-  backdrop-filter: blur(4px);
+
+#obstacle {
+  width: 50px;
+  height: 50px;
+  background-color: black;
+  position: absolute;
+  bottom: 20px;
+  right: -60px;
+  animation: moveObstacle 2s linear infinite;
 }
-canvas{display:block;}
+
+@keyframes moveObstacle {
+  from {
+    right: -60px;
+  }
+  to {
+    right: 100%;
+  }
+}
+
+.jump {
+  animation: jump 0.5s ease;
+}
+
+@keyframes jump {
+  0%   { bottom: 20px; }
+  50%  { bottom: 120px; }
+  100% { bottom: 20px; }
+}
+
+#score {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+#game-over {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-color: rgba(0,0,0,0.7);
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.hidden {
+  display: none;
+}
