@@ -1,120 +1,109 @@
-const gameArea = document.getElementById('game-area');
-const player = document.getElementById('player');
-const scoreDisplay = document.getElementById('score');
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
 let score = 0;
-let isJumping = false;
-let playerBottom = 60;
+let gameOver = false;
+let obstacles = [];
+let keys = {};
+let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
 
-const gravity = 3;
-const jumpHeight = 80;
-const jumpDuration = 400; // ms
+const car = {
+    x: canvas.width/2 - 20,
+    y: canvas.height - 80,
+    width: 40,
+    height: 70,
+    speed: 5
+};
 
-let clouds = [];
-let cloudSpeed = 2;
+document.addEventListener("keydown", (e) => keys[e.key] = true);
+document.addEventListener("keyup", (e) => keys[e.key] = false);
 
-function createCloud() {
-  const cloud = document.createElement('div');
-  cloud.classList.add('cloud');
-  cloud.style.left = gameArea.clientWidth + 'px';
-  gameArea.appendChild(cloud);
-
-  clouds.push({
-    element: cloud,
-    x: gameArea.clientWidth,
-    width: 80,
-  });
+function resetGame() {
+    score = 0;
+    gameOver = false;
+    obstacles = [];
+    car.x = canvas.width/2 - 20;
+    document.getElementById("gameOverScreen").classList.add("hidden");
+    loop();
 }
 
-function moveClouds() {
-  for (let i = clouds.length - 1; i >= 0; i--) {
-    let cloud = clouds[i];
-    cloud.x -= cloudSpeed;
-    cloud.element.style.left = cloud.x + 'px';
+document.getElementById("restartBtn").addEventListener("click", () => {
+    const name = document.getElementById("playerName").value || "Anon";
+    leaderboard.push({name, score});
+    leaderboard.sort((a,b)=>b.score-a.score);
+    leaderboard = leaderboard.slice(0,10);
+    localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+    updateLeaderboard();
+    resetGame();
+});
 
-    // Remove nuvem que saiu da tela
-    if (cloud.x + cloud.width < 0) {
-      gameArea.removeChild(cloud.element);
-      clouds.splice(i, 1);
-      updateScore();
-    }
-  }
+function updateLeaderboard() {
+    const lb = document.getElementById("leaderboard");
+    lb.innerHTML = "";
+    leaderboard.forEach(player=>{
+        const li = document.createElement("li");
+        li.textContent = `${player.name}: ${player.score}`;
+        lb.appendChild(li);
+    });
 }
 
-function updateScore() {
-  score++;
-  scoreDisplay.textContent = score;
+function drawCar() {
+    ctx.fillStyle = "#28d7ff";
+    ctx.fillRect(car.x, car.y, car.width, car.height);
 }
 
-function jump() {
-  if (isJumping) return;
-  isJumping = true;
+function moveCar() {
+    if(keys["ArrowLeft"] && car.x > 0) car.x -= car.speed;
+    if(keys["ArrowRight"] && car.x + car.width < canvas.width) car.x += car.speed;
+}
 
-  let upInterval = setInterval(() => {
-    if (playerBottom >= 60 + jumpHeight) {
-      clearInterval(upInterval);
+function createObstacle() {
+    const width = Math.random()*50 + 30;
+    const x = Math.random()*(canvas.width - width);
+    obstacles.push({x, y: -50, width, height: 30});
+}
 
-      let downInterval = setInterval(() => {
-        if (playerBottom <= 60) {
-          clearInterval(downInterval);
-          isJumping = false;
-        }
-        playerBottom -= gravity;
-        player.style.bottom = playerBottom + 'px';
-      }, 20);
+function drawObstacles() {
+    ctx.fillStyle = "#ff4650";
+    obstacles.forEach(obs=>{
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    });
+}
 
-    } else {
-      playerBottom += gravity;
-      player.style.bottom = playerBottom + 'px';
-    }
-  }, 20);
+function moveObstacles() {
+    obstacles.forEach(obs => obs.y += 4);
+    obstacles = obstacles.filter(obs => obs.y < canvas.height);
 }
 
 function checkCollision() {
-  // Verifica se jogador está em uma nuvem
-  let onCloud = false;
-  for (let cloud of clouds) {
-    const cloudLeft = cloud.x;
-    const cloudRight = cloud.x + cloud.width;
-    const playerLeft = parseInt(player.style.left);
-    const playerRight = playerLeft + 40;
-    const playerBottomPos = playerBottom;
-
-    if (
-      playerRight > cloudLeft &&
-      playerLeft < cloudRight &&
-      playerBottomPos <= 100 && // altura da nuvem (50 + 40 de tamanho do player)
-      playerBottomPos >= 50
-    ) {
-      onCloud = true;
-      break;
+    for(let obs of obstacles){
+        if(car.x < obs.x + obs.width &&
+           car.x + car.width > obs.x &&
+           car.y < obs.y + obs.height &&
+           car.y + car.height > obs.y){
+               gameOver = true;
+               document.getElementById("finalScore").textContent = score;
+               document.getElementById("gameOverScreen").classList.remove("hidden");
+           }
     }
-  }
-  if (!onCloud && !isJumping) {
-    alert(`Game Over! Sua pontuação foi: ${score}`);
-    resetGame();
-  }
 }
 
-function resetGame() {
-  score = 0;
-  scoreDisplay.textContent = score;
-  clouds.forEach(c => gameArea.removeChild(c.element));
-  clouds = [];
-  playerBottom = 60;
-  player.style.bottom = playerBottom + 'px';
+function loop() {
+    if(gameOver) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    moveCar();
+    drawCar();
+    moveObstacles();
+    drawObstacles();
+    checkCollision();
+    score++;
+    document.getElementById("score").textContent = score;
+
+    if(score % 100 === 0) createObstacle();
+
+    requestAnimationFrame(loop);
 }
 
-document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space') {
-    jump();
-  }
-});
-
-createCloud();
-setInterval(createCloud, 2000);
-
-setInterval(() => {
-  moveClouds();
-  checkCollision();
-}, 20);
+// Inicializa leaderboard
+updateLeaderboard();
+loop();
