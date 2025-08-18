@@ -1,146 +1,152 @@
-// Elementos
-const startBtn = document.getElementById('startBtn');
-const restartBtn = document.getElementById('restartBtn');
-const playerNameInput = document.getElementById('playerName');
-const startScreen = document.querySelector('.start-screen');
-const gameScreen = document.querySelector('.game-screen');
-const gameArea = document.getElementById('gameArea');
-const player = document.getElementById('player');
-const scoreDisplay = document.getElementById('score');
-const timerDisplay = document.getElementById('timer');
-const rankingList = document.getElementById('rankingList');
+// ======= Seletores =======
+const track = document.getElementById('track');
+const car1 = document.getElementById('car1');
+const car2 = document.getElementById('car2');
+const startScreen = document.getElementById('start-screen');
+const winnerScreen = document.getElementById('winner-screen');
+const nameForm = document.getElementById('name-form');
+const name1 = document.getElementById('name1');
+const name2 = document.getElementById('name2');
+const winnerText = document.getElementById('winner-text');
+const playAgainBtn = document.getElementById('play-again');
+const changeNamesBtn = document.getElementById('change-names');
+const p1Badge = document.getElementById('p1-badge');
+const p2Badge = document.getElementById('p2-badge');
 
-const hitSound = document.getElementById('hitSound');
-const pointSound = document.getElementById('pointSound');
-const bgMusic = document.getElementById('bgMusic');
+// ======= Estado =======
+let players = { p1: 'Jogador 1', p2: 'Jogador 2' };
+let running = false;
+let finished = false;
 
-let playerName='', score=0, timeLeft=60;
-let obstacles=[], items=[], lines=[], gameInterval, timerInterval;
-let ranking = JSON.parse(localStorage.getItem('ranking')) || [];
+let x1 = 0, x2 = 0;         // posição em px (transformX)
+let v1 = 0, v2 = 0;         // velocidade (px/s)
+let aPressed = false, lPressed = false;
 
-// Início do jogo
-startBtn.addEventListener('click', ()=>{
-  playerName = playerNameInput.value || 'Jogador';
-  startScreen.classList.add('hidden');
-  gameScreen.classList.remove('hidden');
-  startGame();
-});
+const ACCEL = 1100;         // aceleração ao segurar (px/s^2)
+const FRICTION = 900;       // desaceleração quando solta
+const VMAX = 1350;          // velocidade máxima (px/s)
 
-restartBtn.addEventListener('click', resetGame);
+let last = 0;
+let finishX = 0;
 
-// Controle horizontal
-document.addEventListener('keydown',(e)=>{
-  let left = parseInt(player.style.left) || 325;
-  if(e.key==='ArrowLeft' && left>0) player.style.left = (left-20)+'px';
-  if(e.key==='ArrowRight' && left<650) player.style.left = (left+20)+'px';
-});
-
-// Começa a corrida
-function startGame(){
-  score=0; timeLeft=60;
-  scoreDisplay.textContent=`Pontuação: ${score}`;
-  timerDisplay.textContent=`Tempo: ${timeLeft}s`;
-  obstacles=[]; items=[]; lines=[];
-  createLines();
-  bgMusic.play();
-  gameInterval=setInterval(gameLoop,50);
-  timerInterval=setInterval(()=>{
-    timeLeft--;
-    timerDisplay.textContent=`Tempo: ${timeLeft}s`;
-    if(timeLeft<=0) endGame();
-  },1000);
+// ======= Funções util =======
+function resetPositions() {
+  x1 = 0; x2 = 0;
+  v1 = 0; v2 = 0;
+  car1.style.setProperty('--x', `${x1}px`);
+  car2.style.setProperty('--x', `${x2}px`);
+  car1.style.transform = `translateX(${x1}px)`;
+  car2.style.transform = `translateX(${x2}px)`;
+  car1.classList.remove('accel');
+  car2.classList.remove('accel');
 }
 
-function resetGame(){
-  clearInterval(gameInterval); clearInterval(timerInterval);
-  gameArea.querySelectorAll('.obstacle,.item,.line').forEach(e=>e.remove());
-  startGame();
+function computeFinish() {
+  const trackRect = track.getBoundingClientRect();
+  const carW = car1.getBoundingClientRect().width;
+  const finishW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--finish-w')) || 24;
+  // margem para considerar a ponta do carro cruzando a linha:
+  finishX = trackRect.width - finishW - carW - 6;
 }
 
-// Linhas da pista
-function createLines(){
-  for(let i=0;i<6;i++){
-    const line=document.createElement('div');
-    line.classList.add('line');
-    line.style.top=(i*100)+'px';
-    gameArea.appendChild(line);
-    lines.push(line);
+function startRace() {
+  computeFinish();
+  resetPositions();
+  running = true;
+  finished = false;
+  last = performance.now();
+  requestAnimationFrame(loop);
+}
+
+function endRace(winnerName) {
+  running = false;
+  finished = true;
+  winnerText.textContent = `🏆 ${winnerName} venceu a corrida!`;
+  winnerScreen.classList.add('visible');
+}
+
+function updateBadges() {
+  p1Badge.textContent = `${players.p1} — tecla A`;
+  p2Badge.textContent = `${players.p2} — tecla L`;
+}
+
+// ======= Loop principal =======
+function loop(ts) {
+  if (!running) return;
+  const dt = Math.min((ts - last) / 1000, 0.05); // limitar delta para estabilidade
+  last = ts;
+
+  // Aceleração
+  if (aPressed) { v1 = Math.min(VMAX, v1 + ACCEL * dt); car1.classList.add('accel'); }
+  else          { v1 = Math.max(0, v1 - FRICTION * dt); car1.classList.remove('accel'); }
+
+  if (lPressed) { v2 = Math.min(VMAX, v2 + ACCEL * dt); car2.classList.add('accel'); }
+  else          { v2 = Math.max(0, v2 - FRICTION * dt); car2.classList.remove('accel'); }
+
+  // Atualizar posições
+  x1 = Math.min(finishX, x1 + v1 * dt);
+  x2 = Math.min(finishX, x2 + v2 * dt);
+
+  car1.style.transform = `translateX(${x1}px)`;
+  car1.style.setProperty('--x', `${x1}px`);
+  car2.style.transform = `translateX(${x2}px)`;
+  car2.style.setProperty('--x', `${x2}px`);
+
+  // Chegada
+  if (!finished && (x1 >= finishX || x2 >= finishX)) {
+    const winner = x1 > x2 ? players.p1 : (x2 > x1 ? players.p2 : 'Empate');
+    endRace(winner);
+    return;
   }
+
+  requestAnimationFrame(loop);
 }
 
-// Loop da corrida
-function gameLoop(){
-  moveLines();
-  if(Math.random()<0.02) createObstacle();
-  if(Math.random()<0.03) createItem();
-  moveObjects(obstacles,false);
-  moveObjects(items,true);
-}
+// ======= Eventos de teclado =======
+window.addEventListener('keydown', (e) => {
+  if (!running) return;
+  if (e.repeat) e.preventDefault(); // evita scroll/zoom em alguns navegadores
+  if (e.key === 'a' || e.key === 'A') aPressed = true;
+  if (e.key === 'l' || e.key === 'L') lPressed = true;
+});
+window.addEventListener('keyup', (e) => {
+  if (!running) return;
+  if (e.key === 'a' || e.key === 'A') aPressed = false;
+  if (e.key === 'l' || e.key === 'L') lPressed = false;
+});
 
-function moveLines(){
-  lines.forEach(line=>{
-    let top=parseInt(line.style.top);
-    top+=10;
-    if(top>500) top=-100;
-    line.style.top=top+'px';
-  });
-}
+// ======= Formulário de nomes =======
+nameForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  players.p1 = (name1.value || 'Jogador 1').trim();
+  players.p2 = (name2.value || 'Jogador 2').trim();
+  updateBadges();
+  startScreen.classList.remove('visible');
+  startRace();
+});
 
-// Obstáculos e itens
-function createObstacle(){
-  const ob=document.createElement('div');
-  ob.classList.add('obstacle');
-  ob.style.left=Math.random()*660+'px';
-  ob.style.top='-50px';
-  gameArea.appendChild(ob);
-  obstacles.push(ob);
-}
+// ======= Botões pós-corrida =======
+playAgainBtn.addEventListener('click', () => {
+  winnerScreen.classList.remove('visible');
+  startRace();
+});
+changeNamesBtn.addEventListener('click', () => {
+  winnerScreen.classList.remove('visible');
+  startScreen.classList.add('visible');
+  name1.focus();
+});
 
-function createItem(){
-  const it=document.createElement('div');
-  it.classList.add('item');
-  it.style.left=Math.random()*660+'px';
-  it.style.top='-50px';
-  gameArea.appendChild(it);
-  items.push(it);
-}
+// ======= Responsividade (recalcular chegada ao redimensionar) =======
+window.addEventListener('resize', () => {
+  if (!running) return;
+  const pct1 = x1 / Math.max(finishX, 1);
+  const pct2 = x2 / Math.max(finishX, 1);
+  computeFinish();
+  x1 = pct1 * finishX;
+  x2 = pct2 * finishX;
+  car1.style.transform = `translateX(${x1}px)`;
+  car2.style.transform = `translateX(${x2}px)`;
+});
 
-function moveObjects(array,isItem){
-  array.forEach((obj,i)=>{
-    obj.style.top=(parseInt(obj.style.top)+4)+'px';
-    if(parseInt(obj.style.top)>500){ obj.remove(); array.splice(i,1); }
-    else if(checkCollision(player,obj)){
-      if(isItem){ score++; pointSound.play(); }
-      else{ score--; hitSound.play(); }
-      scoreDisplay.textContent=`Pontuação: ${score}`;
-      obj.remove(); array.splice(i,1);
-    }
-  });
-}
-
-function checkCollision(a,b){
-  const ax=a.offsetLeft, ay=a.offsetTop, aw=a.offsetWidth, ah=a.offsetHeight;
-  const bx=b.offsetLeft, by=b.offsetTop, bw=b.offsetWidth, bh=b.offsetHeight;
-  return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by;
-}
-
-// Fim da corrida
-function endGame(){
-  clearInterval(gameInterval); clearInterval(timerInterval);
-  updateRanking();
-  alert(`Tempo esgotado! ${playerName} pontuação: ${score}`);
-}
-
-function updateRanking(){
-  const existing = ranking.find(r=>r.name===playerName);
-  if(existing){ if(score>existing.score) existing.score=score; }
-  else{ ranking.push({name:playerName,score}); }
-  ranking.sort((a,b)=>b.score-a.score);
-  localStorage.setItem('ranking',JSON.stringify(ranking));
-  rankingList.innerHTML='';
-  ranking.slice(0,5).forEach(r=>{
-    const li=document.createElement('li');
-    li.textContent=`${r.name}: ${r.score}`;
-    rankingList.appendChild(li);
-  });
-}
+// ======= Inicial =======
+updateBadges();
