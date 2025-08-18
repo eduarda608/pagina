@@ -1,88 +1,94 @@
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
 
-body {
-  margin: 0;
-  font-family: 'Comic Neue', cursive;
-  overflow: hidden;
+body{
+  margin:0;
+  font-family:'Comic Neue', cursive;
+  overflow:hidden;
 }
 
-.start-screen, .game-screen {
-  text-align: center;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(270deg, #ff00ff, #00ffff, #ffdd00, #ff0077);
-  background-size: 800% 800%;
+.start-screen, .game-screen{
+  text-align:center;
+  position:absolute;
+  width:100%;
+  height:100%;
+  background: linear-gradient(270deg,#ff00ff,#00ffff,#ffdd00,#ff0077);
+  background-size:800% 800%;
   animation: gradientBG 10s ease infinite;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  color:white;
 }
 
-.hidden {
-  display: none;
+.hidden{
+  display:none;
 }
 
-#gameArea {
-  width: 700px;
-  height: 500px;
-  background: rgba(0,0,0,0.6);
+#gameArea{
+  width:700px;
+  height:500px;
+  background: rgba(0,0,0,0.7);
   border: 3px solid #fff;
   border-radius: 15px;
-  margin: 20px auto;
-  position: relative;
-  overflow: hidden;
+  margin:20px auto;
+  position:relative;
+  overflow:hidden;
 }
 
-.shape {
-  position: absolute;
-  cursor: pointer;
-  filter: drop-shadow(0 0 10px white);
-  animation: pulse 1s infinite alternate;
+#info{
+  display:flex;
+  justify-content:space-between;
+  width:700px;
+  margin:0 auto;
+  font-size:20px;
+  text-shadow:0 0 10px white;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.3); }
+.player{
+  width:50px;
+  height:50px;
+  position:absolute;
+  bottom:10px;
+  left:325px;
+  background-color:#ff00ff;
+  border-radius:50%;
+  box-shadow:0 0 15px white;
 }
 
-@keyframes gradientBG {
+.item, .obstacle{
+  width:40px;
+  height:40px;
+  position:absolute;
+  top:0;
+  border-radius:50%;
+  box-shadow:0 0 10px white;
+}
+
+.item{ background-color:#00ff00; }
+.obstacle{ background-color:#ff0000; }
+
+button{
+  padding:12px 25px;
+  font-size:20px;
+  margin-top:10px;
+  cursor:pointer;
+  border:none;
+  border-radius:12px;
+  background-color:#ff00ff;
+  color:white;
+  font-weight:bold;
+  box-shadow:0 0 10px #fff;
+}
+
+button:hover{
+  background-color:#00ffff;
+  color:black;
+  box-shadow:0 0 20px #fff;
+}
+
+@keyframes gradientBG{
   0%{background-position:0% 50%;}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
-}
-
-button {
-  padding: 12px 25px;
-  font-size: 20px;
-  margin-top: 10px;
-  cursor: pointer;
-  border: none;
-  border-radius: 12px;
-  background-color: #ff00ff;
-  color: white;
-  font-weight: bold;
-  box-shadow: 0 0 10px #fff;
-}
-
-button:hover {
-  background-color: #00ffff;
-  color: black;
-  box-shadow: 0 0 20px #fff;
-}
-
-#score {
-  font-size: 24px;
-  font-weight: bold;
-  text-shadow: 0 0 10px white;
-}
-
-#rankingList {
-  list-style: none;
-  padding: 0;
-  color: white;
-  text-shadow: 0 0 5px black;
-  font-size: 18px;
 }
