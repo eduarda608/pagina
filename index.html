@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Corrida Dimensional</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo Neon Colorido</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="game-container">
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-    <div class="ui">
-        <div class="score">Pontuação: <span id="score">0</span></div>
-        <div class="game-over hidden" id="gameOverScreen">
-            <h2>Fim de Jogo!</h2>
-            <p>Seu nome: <input type="text" id="playerName" placeholder="Digite seu nome"></p>
-            <p>Score: <span id="finalScore">0</span></p>
-            <button id="restartBtn">Recomeçar</button>
-            <h3>Ranking:</h3>
-            <ol id="leaderboard"></ol>
-        </div>
-    </div>
-</div>
-<script src="game.js"></script>
+  <div class="start-screen">
+    <h1>Jogo Neon Colorido!</h1>
+    <input type="text" id="playerName" placeholder="Digite seu nome">
+    <button id="startBtn">Começar</button>
+  </div>
+
+  <div class="game-screen hidden">
+    <div id="score">Pontuação: 0</div>
+    <div id="gameArea"></div>
+    <button id="restartBtn">Recomeçar</button>
+    <h2>Ranking</h2>
+    <ul id="rankingList"></ul>
+  </div>
+
+  <!-- Sons e música -->
+  <audio id="hitSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+  <audio id="missSound" src="https://www.soundjay.com/button/sounds/button-10.mp3"></audio>
+  <audio id="pointSound" src="https://www.soundjay.com/button/sounds/button-09.mp3"></audio>
+  <audio id="bgMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
+
+  <script src="script.js"></script>
 </body>
 </html>
