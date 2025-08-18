@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corrida de Carros</title>
+    <title>Corrida Colorida</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Jogo de Corrida</h1>
+    <h1>Corrida Colorida 🏁</h1>
 
     <div id="input-nomes">
         <input type="text" id="player1" placeholder="Nome do Jogador 1">
@@ -16,11 +16,11 @@
     </div>
 
     <div id="game" style="display:none;">
-        <div class="track">
-            <div id="car1" class="car">🚗</div>
+        <div class="track" id="track1">
+            <img src="https://i.ibb.co/3p6P9gH/car1.png" id="car1" class="car">
         </div>
-        <div class="track">
-            <div id="car2" class="car">🏎️</div>
+        <div class="track" id="track2">
+            <img src="https://i.ibb.co/0V8SxRb/car2.png" id="car2" class="car">
         </div>
         <p id="winner"></p>
         <button onclick="restartGame()">Reiniciar Jogo</button>
