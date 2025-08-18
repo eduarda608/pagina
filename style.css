@@ -1,33 +1,68 @@
 body {
     text-align: center;
-    font-family: Arial, sans-serif;
-    background: #f0f8ff;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom, #87CEFA, #00BFFF);
+    margin: 0;
+    padding: 0;
 }
 
-.track {
-    width: 80%;
-    height: 80px;
-    background: #ddd;
-    margin: 20px auto;
-    position: relative;
-    border-radius: 10px;
-}
-
-.car {
-    font-size: 50px;
-    position: absolute;
-    left: 0;
-    top: 15px;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
+h1 {
+    color: #fff;
+    text-shadow: 2px 2px #000;
     margin-top: 20px;
-    cursor: pointer;
+}
+
+#input-nomes {
+    margin: 20px;
 }
 
 input {
     padding: 10px;
     font-size: 16px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 2px solid #333;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    color: #fff;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+button:hover {
+    transform: scale(1.1);
+}
+
+.track {
+    width: 80%;
+    height: 100px;
+    background: linear-gradient(to right, #555, #999);
+    margin: 20px auto;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.car {
+    height: 80px;
+    position: absolute;
+    left: 0;
+    top: 10px;
+    transition: left 0.1s;
+}
+
+#winner {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff0;
+    text-shadow: 2px 2px #000;
 }
