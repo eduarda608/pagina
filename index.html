@@ -3,21 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Clicker Ninja</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Pegue os Emojis!</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🥷 Clicker Ninja</h1>
+  <h1>🎉 Pegue os Emojis!</h1>
   <div class="info">
-    <div id="score">Pontos: 0</div>
-    <div id="timer">Tempo: 30s</div>
+    <span id="score">Pontos: 0</span>
+    <span id="timer">Tempo: 30s</span>
   </div>
-  <button id="start-btn">Iniciar Jogo</button>
+
+  <button id="start-btn">Iniciar</button>
   <button id="restart-btn" style="display: none;">Reiniciar</button>
+
   <div id="game-area"></div>
 
   <div id="game-over" class="hidden">
-    <h2>💀 Game Over!</h2>
+    <h2>💀 Game Over</h2>
     <p id="final-score"></p>
   </div>
 
