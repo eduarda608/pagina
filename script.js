@@ -62,8 +62,7 @@ function gameLoop(){
 }
 
 function moveBackground(){
-  const pos = parseInt(getComputedStyle(gameArea).backgroundPositionY)||0;
-  gameArea.style.backgroundPositionY = (pos+5)+'px';
+  gameArea.style.backgroundPositionY = (parseInt(gameArea.style.backgroundPositionY||0)+5) + 'px';
 }
 
 function createItem(){
