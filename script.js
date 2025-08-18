@@ -15,9 +15,10 @@ const pointSound = document.getElementById('pointSound');
 const bgMusic = document.getElementById('bgMusic');
 
 let playerName='', score=0, timeLeft=60;
-let items=[], obstacles=[], gameInterval, timerInterval;
+let obstacles=[], items=[], lines=[], gameInterval, timerInterval;
 let ranking = JSON.parse(localStorage.getItem('ranking')) || [];
 
+// Início do jogo
 startBtn.addEventListener('click',()=>{
   playerName = playerNameInput.value || 'Jogador';
   startScreen.classList.add('hidden');
@@ -25,8 +26,9 @@ startBtn.addEventListener('click',()=>{
   startGame();
 });
 
-restartBtn.addEventListener('click',resetGame);
+restartBtn.addEventListener('click', resetGame);
 
+// Movimentação do jogador
 document.addEventListener('keydown',(e)=>{
   const step = 20;
   let left = parseInt(player.style.left) || 325;
@@ -34,11 +36,13 @@ document.addEventListener('keydown',(e)=>{
   if(e.key==='ArrowRight' && left<650){ player.style.left=(left+step)+'px'; }
 });
 
+// Começa a rodada
 function startGame(){
   score=0; timeLeft=60;
   scoreDisplay.textContent=`Pontuação: ${score}`;
   timerDisplay.textContent=`Tempo: ${timeLeft}s`;
-  items=[]; obstacles=[];
+  obstacles=[]; items=[]; lines=[];
+  createLines();
   bgMusic.play();
   gameInterval=setInterval(gameLoop,50);
   timerInterval=setInterval(()=>{
@@ -50,39 +54,61 @@ function startGame(){
 
 function resetGame(){
   clearInterval(gameInterval); clearInterval(timerInterval);
+  gameArea.querySelectorAll('.obstacle,.item,.line').forEach(el=>el.remove());
   startGame();
 }
 
+// Criar linhas da pista
+function createLines(){
+  for(let i=0;i<6;i++){
+    const line=document.createElement('div');
+    line.classList.add('line');
+    line.style.top=(i*100)+'px';
+    gameArea.appendChild(line);
+    lines.push(line);
+  }
+}
+
+// Loop principal do jogo
 function gameLoop(){
-  if(Math.random()<0.03){ createItem(); }
-  if(Math.random()<0.02){ createObstacle(); }
-  moveObjects(items,3,true);
+  moveLines();
+  if(Math.random()<0.02) createObstacle();
+  if(Math.random()<0.03) createItem();
   moveObjects(obstacles,4,false);
-  moveBackground();
+  moveObjects(items,3,true);
 }
 
-function moveBackground(){
-  gameArea.style.backgroundPositionY = (parseInt(gameArea.style.backgroundPositionY||0)+5) + 'px';
+// Movimentar linhas da pista
+function moveLines(){
+  lines.forEach(line=>{
+    let top = parseInt(line.style.top);
+    top += 10;
+    if(top>500) top = -100;
+    line.style.top = top+'px';
+  });
 }
 
-function createItem(){
-  const it=document.createElement('div');
-  it.classList.add('item');
-  it.style.left=Math.random()*660+'px';
-  it.style.top='0px';
-  gameArea.appendChild(it);
-  items.push(it);
-}
-
+// Criar obstáculos (cones neon)
 function createObstacle(){
   const ob=document.createElement('div');
   ob.classList.add('obstacle');
   ob.style.left=Math.random()*660+'px';
-  ob.style.top='0px';
+  ob.style.top='-50px';
   gameArea.appendChild(ob);
   obstacles.push(ob);
 }
 
+// Criar itens (moedas neon)
+function createItem(){
+  const it=document.createElement('div');
+  it.classList.add('item');
+  it.style.left=Math.random()*660+'px';
+  it.style.top='-50px';
+  gameArea.appendChild(it);
+  items.push(it);
+}
+
+// Movimentar objetos
 function moveObjects(array,speed,isItem){
   array.forEach((obj,i)=>{
     obj.style.top=(parseInt(obj.style.top)+speed)+'px';
@@ -96,19 +122,21 @@ function moveObjects(array,speed,isItem){
   });
 }
 
+// Colisão
 function checkCollision(a,b){
   const ax=a.offsetLeft, ay=a.offsetTop, aw=a.offsetWidth, ah=a.offsetHeight;
   const bx=b.offsetLeft, by=b.offsetTop, bw=b.offsetWidth, bh=b.offsetHeight;
   return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by;
 }
 
+// Partículas neon
 function createParticles(el){
   for(let i=0;i<10;i++){
     const p=document.createElement('div');
     p.style.position='absolute';
     p.style.width='10px';
     p.style.height='10px';
-    p.style.backgroundColor='#00ffff';
+    p.style.backgroundColor='#0ff';
     p.style.borderRadius='50%';
     p.style.top=(parseInt(el.style.top)+15)+'px';
     p.style.left=(parseInt(el.style.left)+15)+'px';
@@ -121,6 +149,7 @@ function createParticles(el){
   }
 }
 
+// Final do jogo
 function endGame(){
   clearInterval(gameInterval); clearInterval(timerInterval);
   updateRanking();
@@ -128,6 +157,7 @@ function endGame(){
   resetGame();
 }
 
+// Ranking
 function updateRanking(){
   const existing = ranking.find(r=>r.name===playerName);
   if(existing){ if(score>existing.score) existing.score=score; }
