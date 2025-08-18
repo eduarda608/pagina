@@ -18,23 +18,24 @@ function startGame() {
 function moveCar(event) {
     if (winner) return;
 
+    const trackWidth = car1.parentElement.offsetWidth - car1.offsetWidth;
+
     // Jogador 1 usa tecla 'A'
     if (event.key === "a" || event.key === "A") {
-        car1.style.left = (car1.offsetLeft + 20) + "px";
+        car1.style.left = Math.min(car1.offsetLeft + 20, trackWidth) + "px";
     }
 
     // Jogador 2 usa tecla 'L'
     if (event.key === "l" || event.key === "L") {
-        car2.style.left = (car2.offsetLeft + 20) + "px";
+        car2.style.left = Math.min(car2.offsetLeft + 20, trackWidth) + "px";
     }
 
     // Verifica vencedor
-    let trackWidth = car1.parentElement.offsetWidth;
-    if (car1.offsetLeft + car1.offsetWidth >= trackWidth) {
+    if (car1.offsetLeft >= trackWidth) {
         document.getElementById("winner").innerText = player1Name + " venceu! 🏆";
         winner = true;
     }
-    if (car2.offsetLeft + car2.offsetWidth >= trackWidth) {
+    if (car2.offsetLeft >= trackWidth) {
         document.getElementById("winner").innerText = player2Name + " venceu! 🏆";
         winner = true;
     }
