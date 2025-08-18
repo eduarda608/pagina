@@ -28,7 +28,7 @@ body{
 #gameArea{
   width:700px;
   height:500px;
-  background: linear-gradient(#111,#333);
+  background:black;
   border:3px solid #fff;
   border-radius:15px;
   margin:20px auto;
@@ -92,4 +92,3 @@ button:hover{
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
 }
-
