@@ -27,7 +27,7 @@ function spawnEmoji() {
 
   const left = Math.random() * (gameArea.clientWidth - 40);
   emoji.style.left = `${left}px`;
-  emoji.style.top = `-40px`;
+  emoji.style.top = `0px`;
   emoji.style.animationDuration = `${2 + Math.random() * 2}s`;
 
   emoji.addEventListener("click", () => {
@@ -59,7 +59,7 @@ function startGame() {
   restartBtn.style.display = "inline-block";
   gameArea.innerHTML = "";
 
-  emojiInterval = setInterval(spawnEmoji, 800);
+  emojiInterval = setInterval(spawnEmoji, 1000);
   timerInterval = setInterval(() => {
     timeLeft--;
     timerDisplay.textContent = `Tempo: ${timeLeft}s`;
