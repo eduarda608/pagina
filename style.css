@@ -1,107 +1,47 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 1rem;
-  background: #222;
-  color: #eee;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  flex-direction: column;
-}
-
-h1, h2 {
-  margin-bottom: 1rem;
-}
-
-#game {
-  display: grid;
-  grid-template-columns: repeat(15, 30px);
-  grid-template-rows: repeat(15, 30px);
-  gap: 2px;
-  background: #111;
-  border: 3px solid #44ff44;
-  margin-bottom: 1rem;
+  text-align: center;
+  background: radial-gradient(circle at center, #000022, #000000);
+  color: white;
+  margin: 20px;
   user-select: none;
 }
 
-.cell {
+#game-area {
+  position: relative;
+  margin: 0 auto;
+  width: 400px;
+  height: 600px;
+  background: linear-gradient(to top, #001122, #003344);
+  border: 3px solid #00ffff;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+#spaceship {
+  position: absolute;
+  bottom: 10px;
+  left: 180px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(45deg, #00ffff, #0099cc);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  transition: left 0.1s;
+}
+
+.falling-object {
+  position: absolute;
   width: 30px;
   height: 30px;
-  background: #444;
-  transition: background 0.3s;
+  border-radius: 50%;
 }
 
-.wall {
-  background: #222;
+.star {
+  background: yellow;
+  box-shadow: 0 0 8px 3px #ffff66;
 }
 
-.player {
-  background: #44ff44;
-  box-shadow: 0 0 10px #44ff44;
-}
-
-.exit {
-  background: #ff4444;
-  box-shadow: 0 0 10px #ff4444;
-}
-
-.overlay, .hidden {
-  position: absolute;
-  top: 0; left: 0; right:0; bottom: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.hidden {
-  display: none !important;
-}
-
-input[type=text] {
-  font-size: 1.2rem;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  width: 200px;
-  border-radius: 5px;
-  border: none;
-  text-align: center;
-}
-
-button {
-  font-size: 1.2rem;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  background-color: #44ff44;
-  color: #111;
-  transition: background-color 0.3s;
-}
-
-button:disabled {
-  background-color: #777;
-  cursor: not-allowed;
-}
-
-button:hover:not(:disabled) {
-  background-color: #33cc33;
-}
-
-#ranking-list {
-  list-style: decimal inside;
-  padding-left: 0;
-  margin-bottom: 2rem;
-}
-
-.flash {
-  animation: flash-bg 0.3s ease;
-}
-
-@keyframes flash-bg {
-  0% { background-color: #44ff44; }
-  100% { background-color: #222; }
+.meteor {
+  background: gray;
+  box-shadow: 0 0 8px 3px #555555;
 }
