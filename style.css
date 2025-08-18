@@ -1,64 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  margin: 0;
+  font-family: 'Comic Neue', cursive;
+  overflow: hidden;
 }
 
-.game-container {
-    position: relative;
-}
-
-canvas {
-    background: linear-gradient(#0a0a0a, #222);
-    display: block;
-    border: 3px solid #fff;
-    border-radius: 10px;
-}
-
-.ui {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 380px;
-}
-
-.score {
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-.game-over {
-    background: rgba(0,0,0,0.9);
-    position: absolute;
-    top: 50px;
-    left: 0;
-    width: 100%;
-    padding: 20px;
-    text-align: center;
-    border-radius: 10px;
+.start-screen, .game-screen {
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(270deg, #ff00ff, #00ffff, #ffdd00, #ff0077);
+  background-size: 800% 800%;
+  animation: gradientBG 10s ease infinite;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
 }
 
 .hidden {
-    display: none;
+  display: none;
+}
+
+#gameArea {
+  width: 700px;
+  height: 500px;
+  background: rgba(0,0,0,0.6);
+  border: 3px solid #fff;
+  border-radius: 15px;
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.shape {
+  position: absolute;
+  cursor: pointer;
+  filter: drop-shadow(0 0 10px white);
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.3); }
+}
+
+@keyframes gradientBG {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin-top: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    border: none;
-    background: #28d7ff;
-    color: #000;
-    font-weight: bold;
+  padding: 12px 25px;
+  font-size: 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 12px;
+  background-color: #ff00ff;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 0 10px #fff;
 }
 
 button:hover {
-    background: #73ffa4;
+  background-color: #00ffff;
+  color: black;
+  box-shadow: 0 0 20px #fff;
+}
+
+#score {
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 0 0 10px white;
+}
+
+#rankingList {
+  list-style: none;
+  padding: 0;
+  color: white;
+  text-shadow: 0 0 5px black;
+  font-size: 18px;
 }
