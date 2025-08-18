@@ -21,19 +21,17 @@ body{
   color:white;
 }
 
-.hidden{
-  display:none;
-}
+.hidden{ display:none; }
 
 #gameArea{
   width:700px;
   height:500px;
   background:black;
+  margin:20px auto;
   border:3px solid #fff;
   border-radius:15px;
-  margin:20px auto;
-  position:relative;
   overflow:hidden;
+  position:relative;
 }
 
 #info{
@@ -53,20 +51,29 @@ body{
   left:325px;
   background-color:#ff00ff;
   border-radius:50%;
-  box-shadow:0 0 20px #fff;
+  box-shadow:0 0 25px #fff;
 }
 
-.item, .obstacle{
+.obstacle, .item{
+  position:absolute;
   width:40px;
   height:40px;
-  position:absolute;
-  top:0;
-  border-radius:50%;
+  border-radius:10px;
   box-shadow:0 0 15px white;
 }
 
-.item{ background-color:#00ff00; }
 .obstacle{ background-color:#ff0000; }
+.item{ background-color:#00ff00; }
+
+.line{
+  position:absolute;
+  width:10px;
+  height:100px;
+  background:#fff;
+  left:345px;
+  top:0;
+  box-shadow:0 0 10px #0ff;
+}
 
 button{
   padding:12px 25px;
