@@ -1,47 +1,39 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
-  background: radial-gradient(circle at center, #000022, #000000);
-  color: white;
+  background: linear-gradient(to top, #87ceeb, #f0f8ff);
   margin: 20px;
   user-select: none;
 }
 
 #game-area {
   position: relative;
+  width: 500px;
+  height: 300px;
+  background: linear-gradient(to bottom, #cde6f7, #87ceeb);
+  border: 2px solid #7ec0ee;
   margin: 0 auto;
-  width: 400px;
-  height: 600px;
-  background: linear-gradient(to top, #001122, #003344);
-  border: 3px solid #00ffff;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
-#spaceship {
+#player {
   position: absolute;
-  bottom: 10px;
-  left: 180px;
+  bottom: 60px;
+  left: 50px;
   width: 40px;
   height: 40px;
-  background: linear-gradient(45deg, #00ffff, #0099cc);
-  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-  transition: left 0.1s;
+  background: #ff6f61;
+  border-radius: 10px;
+  transition: bottom 0.3s;
 }
 
-.falling-object {
+.cloud {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-}
-
-.star {
-  background: yellow;
-  box-shadow: 0 0 8px 3px #ffff66;
-}
-
-.meteor {
-  background: gray;
-  box-shadow: 0 0 8px 3px #555555;
+  bottom: 50px;
+  width: 80px;
+  height: 40px;
+  background: #fff;
+  border-radius: 40px / 20px;
+  box-shadow: 30px 0 0 0 #fff, 60px 10px 0 0 #fff;
 }
