@@ -1,31 +1,64 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corrida Colorida</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Turbo Duo — Corrida de Dois Jogadores</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Corrida Colorida 🏁</h1>
+  <div class="ui-wrap">
+    <header>
+      <h1>🏁 Turbo Duo</h1>
+      <p class="tag">Corrida para 2 jogadores — colorida e estilosa</p>
+    </header>
 
-    <div id="input-nomes">
-        <input type="text" id="player1" placeholder="Nome do Jogador 1">
-        <input type="text" id="player2" placeholder="Nome do Jogador 2">
-        <button onclick="startGame()">Iniciar Corrida</button>
-    </div>
+    <section class="panel panel-setup" id="setup">
+      <div class="inputs">
+        <label>Nome do Jogador 1
+          <input id="p1name" type="text" placeholder="Ex.: Ana" maxlength="12" />
+        </label>
+        <label>Nome do Jogador 2
+          <input id="p2name" type="text" placeholder="Ex.: Bruno" maxlength="12" />
+        </label>
+      </div>
+      <div class="controls">
+        <div><strong>Controles J1:</strong> W A S D</div>
+        <div><strong>Controles J2:</strong> ⬆ ⬅ ⬇ ➡</div>
+      </div>
+      <button id="btnStart" class="btn btn-primary">Iniciar Corrida</button>
+    </section>
 
-    <div id="game" style="display:none;">
-        <div class="track" id="track1">
-            <img src="https://i.ibb.co/3p6P9gH/car1.png" id="car1" class="car">
+    <section class="panel panel-game hidden" id="game">
+      <div class="hud">
+        <div class="players">
+          <span id="hudP1">J1</span>
+          <span id="hudP2">J2</span>
         </div>
-        <div class="track" id="track2">
-            <img src="https://i.ibb.co/0V8SxRb/car2.png" id="car2" class="car">
+        <div class="progress">
+          <div class="bar" id="barP1"></div>
+          <div class="bar" id="barP2"></div>
         </div>
-        <p id="winner"></p>
-        <button onclick="restartGame()">Reiniciar Jogo</button>
-    </div>
+      </div>
 
-    <script src="script.js"></script>
+      <div class="canvas-wrap">
+        <canvas id="gameCanvas" width="900" height="520"></canvas>
+        <div id="countdown" class="countdown hidden">3</div>
+        <div id="winnerBanner" class="winner hidden"></div>
+      </div>
+
+      <div class="bottom-actions">
+        <button id="btnRestart" class="btn">Reiniciar</button>
+        <button id="btnMenu" class="btn btn-ghost">Menu</button>
+      </div>
+    </section>
+
+    <section class="panel panel-score" id="score">
+      <h2>🏆 Ranking</h2>
+      <ol id="ranking"></ol>
+    </section>
+  </div>
+
+  <script src="game.js"></script>
 </body>
 </html>
