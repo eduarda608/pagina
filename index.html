@@ -1,64 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Turbo Duo — Corrida de Dois Jogadores</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Turbo Duo - Corrida</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="ui-wrap">
-    <header>
-      <h1>🏁 Turbo Duo</h1>
-      <p class="tag">Corrida para 2 jogadores — colorida e estilosa</p>
-    </header>
+  <div class="game-container">
+    <h1>🏎️ Turbo Duo 🏎️</h1>
+    <div id="setup">
+      <input id="player1" placeholder="Nome do Jogador 1">
+      <input id="player2" placeholder="Nome do Jogador 2">
+      <button onclick="startGame()">Iniciar Corrida</button>
+    </div>
 
-    <section class="panel panel-setup" id="setup">
-      <div class="inputs">
-        <label>Nome do Jogador 1
-          <input id="p1name" type="text" placeholder="Ex.: Ana" maxlength="12" />
-        </label>
-        <label>Nome do Jogador 2
-          <input id="p2name" type="text" placeholder="Ex.: Bruno" maxlength="12" />
-        </label>
-      </div>
-      <div class="controls">
-        <div><strong>Controles J1:</strong> W A S D</div>
-        <div><strong>Controles J2:</strong> ⬆ ⬅ ⬇ ➡</div>
-      </div>
-      <button id="btnStart" class="btn btn-primary">Iniciar Corrida</button>
-    </section>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-    <section class="panel panel-game hidden" id="game">
-      <div class="hud">
-        <div class="players">
-          <span id="hudP1">J1</span>
-          <span id="hudP2">J2</span>
-        </div>
-        <div class="progress">
-          <div class="bar" id="barP1"></div>
-          <div class="bar" id="barP2"></div>
-        </div>
-      </div>
-
-      <div class="canvas-wrap">
-        <canvas id="gameCanvas" width="900" height="520"></canvas>
-        <div id="countdown" class="countdown hidden">3</div>
-        <div id="winnerBanner" class="winner hidden"></div>
-      </div>
-
-      <div class="bottom-actions">
-        <button id="btnRestart" class="btn">Reiniciar</button>
-        <button id="btnMenu" class="btn btn-ghost">Menu</button>
-      </div>
-    </section>
-
-    <section class="panel panel-score" id="score">
-      <h2>🏆 Ranking</h2>
-      <ol id="ranking"></ol>
-    </section>
+    <div id="result"></div>
+    <button id="restartBtn" onclick="restartGame()">Reiniciar</button>
   </div>
 
-  <script src="game.js"></script>
+  <!-- defer faz carregar no fim -->
+  <script src="script.js" defer></script>
 </body>
 </html>
