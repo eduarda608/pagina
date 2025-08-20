@@ -1,25 +1,35 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Turbo Duo - Corrida</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrida Colorida com Som</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="game-container">
-    <h1>🏎️ Turbo Duo 🏎️</h1>
-    <div id="setup">
-      <input id="player1" placeholder="Nome do Jogador 1">
-      <input id="player2" placeholder="Nome do Jogador 2">
-      <button id="startBtn">Iniciar Corrida</button>
+    <div id="menu">
+        <h1>Jogo de Corrida Colorida</h1>
+        <input type="text" id="player1" placeholder="Nome do Jogador 1">
+        <input type="text" id="player2" placeholder="Nome do Jogador 2">
+        <button id="startBtn">Iniciar Corrida</button>
     </div>
 
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <canvas id="gameCanvas" width="900" height="500"></canvas>
 
-    <div id="result"></div>
-    <button id="restartBtn">Reiniciar</button>
-  </div>
+    <div id="winnerScreen">
+        <h2 id="winnerText"></h2>
+        <button id="restartBtn">Nova Corrida</button>
+    </div>
 
-  <script src="script.js" defer></script>
+    <div id="ranking">
+        <h3>Ranking:</h3>
+        <ol id="rankingList"></ol>
+    </div>
+
+    <!-- Sons -->
+    <audio id="engineSound" src="engine.mp3" loop></audio>
+    <audio id="winSound" src="win.mp3"></audio>
+
+    <script src="script.js"></script>
 </body>
 </html>
