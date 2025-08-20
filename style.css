@@ -1,54 +1,70 @@
 body {
-  background: linear-gradient(to right, #00c6ff, #0072ff);
-  font-family: Arial, sans-serif;
-  text-align: center;
-  color: white;
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom, #87CEFA, #ffffff);
+    text-align: center;
+    overflow: hidden;
 }
 
-.game-container {
-  padding: 20px;
+#menu, #winnerScreen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #000;
 }
 
-#setup {
-  margin: 20px;
+#menu input {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    font-size: 16px;
+    width: 200px;
 }
 
-input {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 5px;
-  border: none;
-  font-size: 16px;
+#menu button, #winnerScreen button {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    transition: 0.3s;
 }
 
-button {
-  padding: 10px 20px;
-  margin: 10px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  background: #ffcc00;
-  cursor: pointer;
+#menu button:hover, #winnerScreen button:hover {
+    background-color: #ff3b2f;
 }
 
-button:hover {
-  background: #ffaa00;
+canvas {
+    display: block;
+    margin: 0 auto;
+    background-color: #4CAF50; /* gramado */
+    border: 5px solid #333;
+    border-radius: 15px;
 }
 
-#gameCanvas {
-  border: 3px solid white;
-  background: #2c3e50;
-  display: none;
-  margin-top: 20px;
+#winnerScreen h2 {
+    color: gold;
+    text-shadow: 2px 2px 5px #000;
+    font-size: 36px;
+    animation: glow 1s infinite alternate;
 }
 
-#result {
-  font-size: 22px;
-  margin-top: 15px;
+@keyframes glow {
+    from { text-shadow: 2px 2px 5px #000; color: gold; }
+    to { text-shadow: 2px 2px 15px #fff; color: yellow; }
 }
 
-#restartBtn {
-  display: none;
+#ranking {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255,255,255,0.8);
+    padding: 15px;
+    border-radius: 10px;
 }
