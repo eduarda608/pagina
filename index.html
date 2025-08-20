@@ -1,35 +1,51 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corrida Colorida com Som</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>JumpQuest - Plataforma</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="menu">
-        <h1>Jogo de Corrida Colorida</h1>
-        <input type="text" id="player1" placeholder="Nome do Jogador 1">
-        <input type="text" id="player2" placeholder="Nome do Jogador 2">
-        <button id="startBtn">Iniciar Corrida</button>
+  <div id="ui-overlay">
+    <div id="menu" class="panel">
+      <h1>JumpQuest</h1>
+      <label for="playerName">Nome do jogador</label>
+      <input id="playerName" placeholder="Digite seu nome..." maxlength="20" />
+      <div class="row">
+        <button id="startBtn">Iniciar Jogo</button>
+        <button id="resetRankBtn">Limpar Ranking</button>
+      </div>
+      <p class="hint">Tempo estimado do nível: ~2 minutos</p>
+      <div id="topRank">
+        <h3>Ranking (melhor pontuação)</h3>
+        <ol id="rankList"></ol>
+      </div>
     </div>
 
-    <canvas id="gameCanvas" width="900" height="500"></canvas>
-
-    <div id="winnerScreen">
-        <h2 id="winnerText"></h2>
-        <button id="restartBtn">Nova Corrida</button>
+    <div id="hud" class="panel hidden">
+      <div>Jogador: <span id="hudName"></span></div>
+      <div>Vidas: <span id="lives"></span></div>
+      <div>Moedas: <span id="coins"></span></div>
+      <div>Tempo: <span id="time">0.0</span>s</div>
+      <div>Pontuação: <span id="score">0</span></div>
+      <button id="pauseBtn">Pausar</button>
     </div>
 
-    <div id="ranking">
-        <h3>Ranking:</h3>
-        <ol id="rankingList"></ol>
+    <div id="endScreen" class="panel hidden">
+      <h2 id="endTitle"></h2>
+      <p id="endMessage"></p>
+      <p>Pontuação final: <strong id="finalScore">0</strong></p>
+      <p>Tempo: <strong id="finalTime">0.0</strong>s</p>
+      <div class="row">
+        <button id="retryBtn">Jogar Novamente</button>
+        <button id="toMenuBtn">Voltar ao Menu</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Sons -->
-    <audio id="engineSound" src="engine.mp3" loop></audio>
-    <audio id="winSound" src="win.mp3"></audio>
+  <canvas id="gameCanvas" width="900" height="500"></canvas>
 
-    <script src="script.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
