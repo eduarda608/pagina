@@ -1,73 +1,139 @@
-let canvas = document.getElementById("gameCanvas");
-let ctx = canvas.getContext("2d");
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-let player1 = { name: "", x: 50, y: 120, color: "red" };
-let player2 = { name: "", x: 50, y: 250, color: "yellow" };
-let finishLine = 750;
-let gameRunning = false;
+const menu = document.getElementById("menu");
+const startBtn = document.getElementById("startBtn");
+const winnerScreen = document.getElementById("winnerScreen");
+const winnerText = document.getElementById("winnerText");
+const restartBtn = document.getElementById("restartBtn");
+const rankingList = document.getElementById("rankingList");
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("startBtn").addEventListener("click", startGame);
-  document.getElementById("restartBtn").addEventListener("click", restartGame);
+const engineSound = document.getElementById("engineSound");
+const winSound = document.getElementById("winSound");
+
+let player1Name = "";
+let player2Name = "";
+let ranking = [];
+
+let gameInterval;
+
+// Curvas da pista com Bezier
+const trackPoints = [
+    {x:150, y:450}, {x:150, y:100}, {x:750, y:100}, {x:750, y:450}, {x:150, y:450}
+];
+
+const cars = [
+    {x: 200, y: 400, color: "red", upKey: "w", downKey: "s", leftKey: "a", rightKey: "d", name: "", score: 0},
+    {x: 400, y: 400, color: "blue", upKey: "ArrowUp", downKey: "ArrowDown", leftKey: "ArrowLeft", rightKey: "ArrowRight", name: "", score: 0}
+];
+
+const keys = {};
+document.addEventListener('keydown', (e) => {
+    keys[e.key] = true;
+    if(!engineSound.paused) return;
+    engineSound.play();
 });
+document.addEventListener('keyup', (e) => keys[e.key] = false);
 
 function startGame() {
-  player1.name = document.getElementById("player1").value || "Jogador 1";
-  player2.name = document.getElementById("player2").value || "Jogador 2";
+    player1Name = document.getElementById("player1").value || "Jogador 1";
+    player2Name = document.getElementById("player2").value || "Jogador 2";
+    cars[0].name = player1Name;
+    cars[1].name = player2Name;
 
-  document.getElementById("setup").style.display = "none";
-  canvas.style.display = "block";
-  document.getElementById("result").innerHTML = "";
-  document.getElementById("restartBtn").style.display = "none";
+    menu.style.display = "none";
+    winnerScreen.style.display = "none";
 
-  player1.x = 50;
-  player2.x = 50;
-  gameRunning = true;
+    cars[0].x = 200; cars[0].y = 400;
+    cars[1].x = 400; cars[1].y = 400;
 
-  requestAnimationFrame(updateGame);
+    gameInterval = setInterval(gameLoop, 20);
 }
 
-function updateGame() {
-  if (!gameRunning) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Pista
-  ctx.fillStyle = "#34495e";
-  ctx.fillRect(0, 100, canvas.width, 200);
-
-  // Linha de chegada
-  ctx.fillStyle = "white";
-  ctx.fillRect(finishLine, 100, 10, 200);
-
-  // Jogadores (carros)
-  ctx.fillStyle = player1.color;
-  ctx.fillRect(player1.x, player1.y, 50, 30);
-
-  ctx.fillStyle = player2.color;
-  ctx.fillRect(player2.x, player2.y, 50, 30);
-
-  // Movimento automático dos carros
-  player1.x += Math.random() * 5;
-  player2.x += Math.random() * 5;
-
-  // Verificar vencedor
-  if (player1.x >= finishLine - 50) {
-    endGame(player1.name);
-  } else if (player2.x >= finishLine - 50) {
-    endGame(player2.name);
-  } else {
-    requestAnimationFrame(updateGame);
-  }
+function gameLoop() {
+    updateCars();
+    drawTrack();
+    drawCars();
+    checkWinner();
 }
 
-function endGame(winner) {
-  gameRunning = false;
-  document.getElementById("result").innerHTML = `🏆 ${winner} venceu a corrida!`;
-  document.getElementById("restartBtn").style.display = "inline-block";
+function updateCars() {
+    cars.forEach(car => {
+        if(keys[car.upKey]) car.y -= 4;
+        if(keys[car.downKey]) car.y += 4;
+        if(keys[car.leftKey]) car.x -= 4;
+        if(keys[car.rightKey]) car.x += 4;
+
+        // Limites do canvas
+        if(car.x < 0) car.x = 0;
+        if(car.x > canvas.width) car.x = canvas.width;
+        if(car.y < 0) car.y = 0;
+        if(car.y > canvas.height) car.y = canvas.height;
+    });
 }
 
-function restartGame() {
-  document.getElementById("setup").style.display = "block";
-  canvas.style.display = "none";
+function drawTrack() {
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+
+    // Grama
+    ctx.fillStyle = "#4CAF50";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // Pista com curvas Bezier
+    ctx.beginPath();
+    ctx.moveTo(trackPoints[0].x, trackPoints[0].y);
+    ctx.bezierCurveTo(150, 200, 750, 200, trackPoints[1].x, trackPoints[1].y);
+    ctx.lineTo(trackPoints[2].x, trackPoints[2].y);
+    ctx.bezierCurveTo(700, 200, 200, 200, trackPoints[3].x, trackPoints[3].y);
+    ctx.closePath();
+    ctx.fillStyle = "#808080";
+    ctx.fill();
+
+    // Faixas brancas
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 5;
+    ctx.setLineDash([20, 15]);
+    ctx.stroke();
+    ctx.setLineDash([]);
 }
+
+function drawCars() {
+    cars.forEach(car => {
+        ctx.fillStyle = car.color;
+        ctx.fillRect(car.x - 15, car.y - 25, 30, 50);
+    });
+}
+
+function checkWinner() {
+    cars.forEach(car => {
+        if(car.y <= 110) {
+            clearInterval(gameInterval);
+            engineSound.pause();
+            engineSound.currentTime = 0;
+            winnerText.textContent = `${car.name} VENCEU!`;
+            winnerScreen.style.display = "block";
+            winSound.play();
+            addToRanking(car.name);
+        }
+    });
+}
+
+function addToRanking(name) {
+    let found = ranking.find(player => player.name === name);
+    if(found) found.score += 1;
+    else ranking.push({name, score: 1});
+    updateRanking();
+}
+
+function updateRanking() {
+    rankingList.innerHTML = "";
+    ranking.sort((a,b) => b.score - a.score);
+    ranking.forEach(player => {
+        const li = document.createElement("li");
+        li.textContent = `${player.name} - ${player.score} vitórias`;
+        rankingList.appendChild(li);
+    });
+}
+
+startBtn.addEventListener("click", startGame);
+restartBtn.addEventListener("click", startGame);
