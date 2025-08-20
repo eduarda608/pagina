@@ -1,139 +1,154 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+canvas.width = 800;
+canvas.height = 400;
 
 const menu = document.getElementById("menu");
 const startBtn = document.getElementById("startBtn");
-const winnerScreen = document.getElementById("winnerScreen");
-const winnerText = document.getElementById("winnerText");
-const restartBtn = document.getElementById("restartBtn");
+const playerNameInput = document.getElementById("playerName");
 const rankingList = document.getElementById("rankingList");
 
-const engineSound = document.getElementById("engineSound");
-const winSound = document.getElementById("winSound");
+// Estado do jogo
+let player = { x: 50, y: 300, w: 40, h: 40, vy: 0, jumping: false, score: 0 };
+let coins = [];
+let enemies = [];
+let gravity = 1.2;
+let gameOver = false;
+let startTime, elapsedTime;
+let playerName = "";
 
-let player1Name = "";
-let player2Name = "";
-let ranking = [];
+// Gerar moedas
+function createCoins() {
+  coins = [];
+  for (let i = 0; i < 10; i++) {
+    coins.push({ x: 150 + i * 60, y: 300, w: 20, h: 20, collected: false });
+  }
+}
 
-let gameInterval;
+// Gerar inimigos
+function createEnemies() {
+  enemies = [{ x: 400, y: 300, w: 40, h: 40, dir: -2 }];
+}
 
-// Curvas da pista com Bezier
-const trackPoints = [
-    {x:150, y:450}, {x:150, y:100}, {x:750, y:100}, {x:750, y:450}, {x:150, y:450}
-];
-
-const cars = [
-    {x: 200, y: 400, color: "red", upKey: "w", downKey: "s", leftKey: "a", rightKey: "d", name: "", score: 0},
-    {x: 400, y: 400, color: "blue", upKey: "ArrowUp", downKey: "ArrowDown", leftKey: "ArrowLeft", rightKey: "ArrowRight", name: "", score: 0}
-];
-
-const keys = {};
-document.addEventListener('keydown', (e) => {
-    keys[e.key] = true;
-    if(!engineSound.paused) return;
-    engineSound.play();
+// Controles
+document.addEventListener("keydown", (e) => {
+  if (e.code === "ArrowUp" && !player.jumping) {
+    player.vy = -15;
+    player.jumping = true;
+  }
+  if (e.code === "ArrowRight") {
+    player.x += 5;
+  }
+  if (e.code === "ArrowLeft") {
+    player.x -= 5;
+  }
 });
-document.addEventListener('keyup', (e) => keys[e.key] = false);
 
 function startGame() {
-    player1Name = document.getElementById("player1").value || "Jogador 1";
-    player2Name = document.getElementById("player2").value || "Jogador 2";
-    cars[0].name = player1Name;
-    cars[1].name = player2Name;
+  playerName = playerNameInput.value || "Jogador";
+  player.x = 50;
+  player.y = 300;
+  player.vy = 0;
+  player.jumping = false;
+  player.score = 0;
+  gameOver = false;
+  createCoins();
+  createEnemies();
+  startTime = Date.now();
+  menu.style.display = "none";
+  canvas.style.display = "block";
+  gameLoop();
+}
 
-    menu.style.display = "none";
-    winnerScreen.style.display = "none";
+function endGame() {
+  gameOver = true;
+  elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+  saveRanking(playerName, player.score, elapsedTime);
+  showRanking();
+  menu.style.display = "block";
+  canvas.style.display = "none";
+}
 
-    cars[0].x = 200; cars[0].y = 400;
-    cars[1].x = 400; cars[1].y = 400;
+function saveRanking(name, score, time) {
+  let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+  ranking.push({ name, score, time });
+  ranking.sort((a, b) => b.score - a.score || a.time - b.time);
+  ranking = ranking.slice(0, 5); // top 5
+  localStorage.setItem("ranking", JSON.stringify(ranking));
+}
 
-    gameInterval = setInterval(gameLoop, 20);
+function showRanking() {
+  rankingList.innerHTML = "";
+  let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+  ranking.forEach(r => {
+    const li = document.createElement("li");
+    li.textContent = `${r.name} - Pontos: ${r.score}, Tempo: ${r.time}s`;
+    rankingList.appendChild(li);
+  });
 }
 
 function gameLoop() {
-    updateCars();
-    drawTrack();
-    drawCars();
-    checkWinner();
-}
+  if (gameOver) return;
 
-function updateCars() {
-    cars.forEach(car => {
-        if(keys[car.upKey]) car.y -= 4;
-        if(keys[car.downKey]) car.y += 4;
-        if(keys[car.leftKey]) car.x -= 4;
-        if(keys[car.rightKey]) car.x += 4;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Limites do canvas
-        if(car.x < 0) car.x = 0;
-        if(car.x > canvas.width) car.x = canvas.width;
-        if(car.y < 0) car.y = 0;
-        if(car.y > canvas.height) car.y = canvas.height;
-    });
-}
+  // Player
+  player.vy += gravity;
+  player.y += player.vy;
+  if (player.y + player.h >= 340) {
+    player.y = 340 - player.h;
+    player.vy = 0;
+    player.jumping = false;
+  }
 
-function drawTrack() {
-    ctx.clearRect(0,0,canvas.width, canvas.height);
+  ctx.fillStyle = "blue";
+  ctx.fillRect(player.x, player.y, player.w, player.h);
 
-    // Grama
-    ctx.fillStyle = "#4CAF50";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Coins
+  ctx.fillStyle = "gold";
+  coins.forEach(c => {
+    if (!c.collected) {
+      ctx.fillRect(c.x, c.y, c.w, c.h);
+      if (player.x < c.x + c.w &&
+          player.x + player.w > c.x &&
+          player.y < c.y + c.h &&
+          player.y + player.h > c.y) {
+        c.collected = true;
+        player.score += 10;
+      }
+    }
+  });
 
-    // Pista com curvas Bezier
-    ctx.beginPath();
-    ctx.moveTo(trackPoints[0].x, trackPoints[0].y);
-    ctx.bezierCurveTo(150, 200, 750, 200, trackPoints[1].x, trackPoints[1].y);
-    ctx.lineTo(trackPoints[2].x, trackPoints[2].y);
-    ctx.bezierCurveTo(700, 200, 200, 200, trackPoints[3].x, trackPoints[3].y);
-    ctx.closePath();
-    ctx.fillStyle = "#808080";
-    ctx.fill();
+  // Enemies
+  ctx.fillStyle = "red";
+  enemies.forEach(e => {
+    e.x += e.dir;
+    if (e.x <= 0 || e.x + e.w >= canvas.width) e.dir *= -1;
+    ctx.fillRect(e.x, e.y, e.w, e.h);
 
-    // Faixas brancas
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 5;
-    ctx.setLineDash([20, 15]);
-    ctx.stroke();
-    ctx.setLineDash([]);
-}
+    // colisão
+    if (player.x < e.x + e.w &&
+        player.x + player.w > e.x &&
+        player.y < e.y + e.h &&
+        player.y + player.h > e.y) {
+      endGame();
+    }
+  });
 
-function drawCars() {
-    cars.forEach(car => {
-        ctx.fillStyle = car.color;
-        ctx.fillRect(car.x - 15, car.y - 25, 30, 50);
-    });
-}
+  // HUD
+  ctx.fillStyle = "black";
+  ctx.font = "20px Arial";
+  ctx.fillText("Pontos: " + player.score, 20, 30);
+  let currentTime = Math.floor((Date.now() - startTime) / 1000);
+  ctx.fillText("Tempo: " + currentTime + "s", 20, 60);
 
-function checkWinner() {
-    cars.forEach(car => {
-        if(car.y <= 110) {
-            clearInterval(gameInterval);
-            engineSound.pause();
-            engineSound.currentTime = 0;
-            winnerText.textContent = `${car.name} VENCEU!`;
-            winnerScreen.style.display = "block";
-            winSound.play();
-            addToRanking(car.name);
-        }
-    });
-}
+  // Vitória
+  if (coins.every(c => c.collected)) {
+    endGame();
+  }
 
-function addToRanking(name) {
-    let found = ranking.find(player => player.name === name);
-    if(found) found.score += 1;
-    else ranking.push({name, score: 1});
-    updateRanking();
-}
-
-function updateRanking() {
-    rankingList.innerHTML = "";
-    ranking.sort((a,b) => b.score - a.score);
-    ranking.forEach(player => {
-        const li = document.createElement("li");
-        li.textContent = `${player.name} - ${player.score} vitórias`;
-        rankingList.appendChild(li);
-    });
+  requestAnimationFrame(gameLoop);
 }
 
 startBtn.addEventListener("click", startGame);
-restartBtn.addEventListener("click", startGame);
+showRanking();
