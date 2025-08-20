@@ -6,6 +6,11 @@ let player2 = { name: "", x: 50, y: 250, color: "yellow" };
 let finishLine = 750;
 let gameRunning = false;
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("startBtn").addEventListener("click", startGame);
+  document.getElementById("restartBtn").addEventListener("click", restartGame);
+});
+
 function startGame() {
   player1.name = document.getElementById("player1").value || "Jogador 1";
   player2.name = document.getElementById("player2").value || "Jogador 2";
