@@ -1,51 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>JumpQuest - Plataforma</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>JumpQuest</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="ui-overlay">
-    <div id="menu" class="panel">
-      <h1>JumpQuest</h1>
-      <label for="playerName">Nome do jogador</label>
-      <input id="playerName" placeholder="Digite seu nome..." maxlength="20" />
-      <div class="row">
-        <button id="startBtn">Iniciar Jogo</button>
-        <button id="resetRankBtn">Limpar Ranking</button>
-      </div>
-      <p class="hint">Tempo estimado do nível: ~2 minutos</p>
-      <div id="topRank">
-        <h3>Ranking (melhor pontuação)</h3>
-        <ol id="rankList"></ol>
-      </div>
-    </div>
-
-    <div id="hud" class="panel hidden">
-      <div>Jogador: <span id="hudName"></span></div>
-      <div>Vidas: <span id="lives"></span></div>
-      <div>Moedas: <span id="coins"></span></div>
-      <div>Tempo: <span id="time">0.0</span>s</div>
-      <div>Pontuação: <span id="score">0</span></div>
-      <button id="pauseBtn">Pausar</button>
-    </div>
-
-    <div id="endScreen" class="panel hidden">
-      <h2 id="endTitle"></h2>
-      <p id="endMessage"></p>
-      <p>Pontuação final: <strong id="finalScore">0</strong></p>
-      <p>Tempo: <strong id="finalTime">0.0</strong>s</p>
-      <div class="row">
-        <button id="retryBtn">Jogar Novamente</button>
-        <button id="toMenuBtn">Voltar ao Menu</button>
-      </div>
-    </div>
+  <!-- Tela inicial -->
+  <div id="menu">
+    <h1>JumpQuest</h1>
+    <input type="text" id="playerName" placeholder="Digite seu nome">
+    <button id="startBtn">Iniciar Jogo</button>
+    <h2>Ranking</h2>
+    <ol id="rankingList"></ol>
   </div>
 
-  <canvas id="gameCanvas" width="900" height="500"></canvas>
+  <!-- Jogo -->
+  <canvas id="gameCanvas"></canvas>
 
-  <script src="game.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
