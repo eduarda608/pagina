@@ -1,46 +1,68 @@
-let player1Name, player2Name;
-let car1, car2;
-let winner = false;
+let canvas = document.getElementById("gameCanvas");
+let ctx = canvas.getContext("2d");
+
+let player1 = { name: "", x: 50, y: 120, color: "red" };
+let player2 = { name: "", x: 50, y: 250, color: "yellow" };
+let finishLine = 750;
+let gameRunning = false;
 
 function startGame() {
-    player1Name = document.getElementById("player1").value || "Jogador 1";
-    player2Name = document.getElementById("player2").value || "Jogador 2";
+  player1.name = document.getElementById("player1").value || "Jogador 1";
+  player2.name = document.getElementById("player2").value || "Jogador 2";
 
-    document.getElementById("input-nomes").style.display = "none";
-    document.getElementById("game").style.display = "block";
+  document.getElementById("setup").style.display = "none";
+  canvas.style.display = "block";
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("restartBtn").style.display = "none";
 
-    car1 = document.getElementById("car1");
-    car2 = document.getElementById("car2");
+  player1.x = 50;
+  player2.x = 50;
+  gameRunning = true;
 
-    document.addEventListener("keydown", moveCar);
+  requestAnimationFrame(updateGame);
 }
 
-function moveCar(event) {
-    if (winner) return;
+function updateGame() {
+  if (!gameRunning) return;
 
-    const trackWidth = car1.parentElement.offsetWidth - car1.offsetWidth;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Jogador 1 usa tecla 'A'
-    if (event.key === "a" || event.key === "A") {
-        car1.style.left = Math.min(car1.offsetLeft + 20, trackWidth) + "px";
-    }
+  // Pista
+  ctx.fillStyle = "#34495e";
+  ctx.fillRect(0, 100, canvas.width, 200);
 
-    // Jogador 2 usa tecla 'L'
-    if (event.key === "l" || event.key === "L") {
-        car2.style.left = Math.min(car2.offsetLeft + 20, trackWidth) + "px";
-    }
+  // Linha de chegada
+  ctx.fillStyle = "white";
+  ctx.fillRect(finishLine, 100, 10, 200);
 
-    // Verifica vencedor
-    if (car1.offsetLeft >= trackWidth) {
-        document.getElementById("winner").innerText = player1Name + " venceu! 🏆";
-        winner = true;
-    }
-    if (car2.offsetLeft >= trackWidth) {
-        document.getElementById("winner").innerText = player2Name + " venceu! 🏆";
-        winner = true;
-    }
+  // Jogadores (carros)
+  ctx.fillStyle = player1.color;
+  ctx.fillRect(player1.x, player1.y, 50, 30);
+
+  ctx.fillStyle = player2.color;
+  ctx.fillRect(player2.x, player2.y, 50, 30);
+
+  // Movimento automático dos carros
+  player1.x += Math.random() * 5;
+  player2.x += Math.random() * 5;
+
+  // Verificar vencedor
+  if (player1.x >= finishLine - 50) {
+    endGame(player1.name);
+  } else if (player2.x >= finishLine - 50) {
+    endGame(player2.name);
+  } else {
+    requestAnimationFrame(updateGame);
+  }
+}
+
+function endGame(winner) {
+  gameRunning = false;
+  document.getElementById("result").innerHTML = `🏆 ${winner} venceu a corrida!`;
+  document.getElementById("restartBtn").style.display = "inline-block";
 }
 
 function restartGame() {
-    location.reload();
+  document.getElementById("setup").style.display = "block";
+  canvas.style.display = "none";
 }
