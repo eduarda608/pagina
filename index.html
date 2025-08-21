@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jogo da Cobrinha</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -13,37 +13,35 @@
       <div class="stats">
         <div class="chip">Pontuação: <span id="score">0</span></div>
         <div class="chip">Recorde: <span id="highscore">0</span></div>
-        <div class="chip">Velocidade: <span id="speed">6</span></div>
+        <div class="chip">Velocidade: <span id="speed">1</span>x</div>
       </div>
       <div class="actions">
-        <button class="btn primary" id="startBtn">▶ Iniciar</button>
-        <button class="btn" id="pauseBtn">⏸ Pausa</button>
-        <button class="btn" id="resetBtn">🔄 Reiniciar</button>
+        <button id="startBtn" class="btn primary">Iniciar</button>
+        <button id="resetBtn" class="btn">Reiniciar</button>
       </div>
     </div>
 
     <div class="game">
       <div class="viewport">
-        <canvas id="gameCanvas" width="800" height="800"></canvas>
-        <div class="overlay" id="overlay">
+        <canvas id="gameCanvas"></canvas>
+        <div id="overlay" class="overlay hidden">
           <div class="card">
-            <h2>🐍 Jogo da Cobrinha</h2>
-            <p>Use as setas ou WASD para se mover</p>
-            <p><kbd>Espaço</kbd> - Iniciar | <kbd>P</kbd> - Pausa | <kbd>R</kbd> - Reiniciar</p>
-            <button class="btn primary" id="overlayBtn">Começar</button>
+            <h2 id="overlayTitle">Jogo Pausado</h2>
+            <p id="overlayText">Pressione <kbd class="kbd">Espaço</kbd> para continuar</p>
           </div>
         </div>
       </div>
+
       <div class="mobile-controls">
         <div class="dpad">
           <div class="spacer"></div>
-          <button class="btn ctrl" data-dir="up">▲</button>
+          <button class="ctrl" data-dir="up">▲</button>
           <div class="spacer"></div>
-          <button class="btn ctrl" data-dir="left">◀</button>
+          <button class="ctrl" data-dir="left">◀</button>
           <div class="spacer"></div>
-          <button class="btn ctrl" data-dir="right">▶</button>
+          <button class="ctrl" data-dir="right">▶</button>
           <div class="spacer"></div>
-          <button class="btn ctrl" data-dir="down">▼</button>
+          <button class="ctrl" data-dir="down">▼</button>
           <div class="spacer"></div>
         </div>
       </div>
