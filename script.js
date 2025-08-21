@@ -8,17 +8,15 @@ let food = {
   y: Math.floor(Math.random() * 20) * box,
 };
 
-document.addEventListener("keydown", updateDirection);
-
-function updateDirection(event) {
+document.addEventListener("keydown", function(event) {
   if (event.key === "ArrowLeft" && direction !== "right") direction = "left";
   if (event.key === "ArrowUp" && direction !== "down") direction = "up";
   if (event.key === "ArrowRight" && direction !== "left") direction = "right";
   if (event.key === "ArrowDown" && direction !== "up") direction = "down";
-}
+});
 
 function draw() {
-  context.clearRect(0, 0, 400, 400);
+  context.clearRect(0, 0, canvas.width, canvas.height);
 
   for (let i = 0; i < snake.length; i++) {
     context.fillStyle = i === 0 ? "#0f0" : "#090";
@@ -35,10 +33,9 @@ function draw() {
   if (direction === "up") head.y -= box;
   if (direction === "down") head.y += box;
 
-  // Game Over
   if (
-    head.x < 0 || head.x >= 400 ||
-    head.y < 0 || head.y >= 400 ||
+    head.x < 0 || head.x >= canvas.width ||
+    head.y < 0 || head.y >= canvas.height ||
     snake.some(segment => segment.x === head.x && segment.y === head.y)
   ) {
     clearInterval(game);
