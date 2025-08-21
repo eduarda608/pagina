@@ -1,21 +1,33 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+canvas.width = 800;
+canvas.height = 800;
+
+const scoreEl = document.getElementById("score");
+const highscoreEl = document.getElementById("highscore");
+const speedEl = document.getElementById("speed");
+const overlay = document.getElementById("overlay");
+const overlayTitle = document.getElementById("overlayTitle");
+const overlayText = document.getElementById("overlayText");
 
 const gridSize = 20;
-const tileSize = canvas.width / gridSize;
+const cellSize = canvas.width / gridSize;
 
 let snake, direction, food, obstacles, score, highscore, speed, running, wrapMode;
 
-function resetGame() {
+function reset() {
   snake = [{ x: 10, y: 10 }];
-  direction = { x: 0, y: 0 };
-  food = spawnFood();
-  obstacles = [];
+  for (let i = 1; i < 5; i++) snake.push({ x: 10 - i, y: 10 });
+  direction = "right";
   score = 0;
   speed = 6;
-  running = false;
+  food = spawnFood();
+  obstacles = [];
+  running = true;
   wrapMode = true;
-  updateUI();
+  scoreEl.textContent = score;
+  speedEl.textContent = "1";
+  overlay.classList.add("hidden");
 }
 
 function spawnFood() {
@@ -30,118 +42,133 @@ function spawnObstacle() {
   let pos;
   do {
     pos = { x: Math.floor(Math.random() * gridSize), y: Math.floor(Math.random() * gridSize) };
-  } while (snake.some(s => s.x === pos.x && s.y === pos.y) || (food.x === pos.x && food.y === pos.y));
+  } while (snake.some(s => s.x === pos.x && s.y === pos.y) || (food && food.x === pos.x && food.y === pos.y));
   obstacles.push(pos);
 }
 
-function updateUI() {
-  document.getElementById("score").textContent = score;
-  document.getElementById("highscore").textContent = highscore;
-  document.getElementById("speed").textContent = speed;
+function drawCell(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x * cellSize, y * cellSize, cellSize - 2, cellSize - 2);
 }
 
-function gameLoop() {
+function gameOver() {
+  running = false;
+  overlay.classList.remove("hidden");
+  overlayTitle.textContent = "Game Over";
+  overlayText.textContent = "Pressione R para reiniciar";
+}
+
+function update() {
   if (!running) return;
 
-  const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+  const head = { ...snake[0] };
+  if (direction === "up") head.y--;
+  if (direction === "down") head.y++;
+  if (direction === "left") head.x--;
+  if (direction === "right") head.x++;
 
   if (wrapMode) {
-    head.x = (head.x + gridSize) % gridSize;
-    head.y = (head.y + gridSize) % gridSize;
+    if (head.x < 0) head.x = gridSize - 1;
+    if (head.x >= gridSize) head.x = 0;
+    if (head.y < 0) head.y = gridSize - 1;
+    if (head.y >= gridSize) head.y = 0;
   } else {
     if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
-      return gameOver();
+      gameOver();
+      return;
     }
   }
 
-  if (snake.some(seg => seg.x === head.x && seg.y === head.y) ||
+  if (snake.some(s => s.x === head.x && s.y === head.y) ||
       obstacles.some(o => o.x === head.x && o.y === head.y)) {
-    return gameOver();
+    gameOver();
+    return;
   }
 
   snake.unshift(head);
 
   if (head.x === food.x && head.y === food.y) {
     score++;
+    scoreEl.textContent = score;
+    food = spawnFood();
+    if (score % 5 === 0) {
+      speed += 2;
+      speedEl.textContent = (speed / 6).toFixed(1) + "x";
+      spawnObstacle();
+    }
     if (score > highscore) {
       highscore = score;
       localStorage.setItem("snakeHighscore", highscore);
+      highscoreEl.textContent = highscore;
     }
-    if (score % 5 === 0) {
-      speed++;
-      spawnObstacle();
-    }
-    food = spawnFood();
   } else {
     snake.pop();
   }
-
-  updateUI();
-  draw();
-  setTimeout(gameLoop, 1000 / speed);
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "#f43f5e";
-  ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
-
-  ctx.fillStyle = "#f59e0b";
-  obstacles.forEach(o => ctx.fillRect(o.x * tileSize, o.y * tileSize, tileSize, tileSize));
-
-  ctx.fillStyle = "#22d3ee";
-  snake.forEach((s, i) => {
-    ctx.fillStyle = i === 0 ? "#38bdf8" : "#22d3ee";
-    ctx.fillRect(s.x * tileSize, s.y * tileSize, tileSize, tileSize);
-  });
+  snake.forEach((s, i) => drawCell(s.x, s.y, i === 0 ? "var(--snake-head)" : "var(--snake)"));
+  drawCell(food.x, food.y, "var(--food)");
+  obstacles.forEach(o => drawCell(o.x, o.y, "var(--obstacle)"));
 }
 
-function gameOver() {
-  running = false;
-  document.getElementById("overlay").classList.remove("hidden");
+function loop() {
+  if (running) {
+    update();
+    draw();
+  }
+  setTimeout(() => requestAnimationFrame(loop), 1000 / speed);
 }
 
+function start() {
+  loop();
+}
+
+// 📌 Controles teclado
 document.addEventListener("keydown", e => {
-  switch (e.key) {
-    case "ArrowUp":
-    case "w": if (direction.y === 0) direction = { x: 0, y: -1 }; break;
-    case "ArrowDown":
-    case "s": if (direction.y === 0) direction = { x: 0, y: 1 }; break;
-    case "ArrowLeft":
-    case "a": if (direction.x === 0) direction = { x: -1, y: 0 }; break;
-    case "ArrowRight":
-    case "d": if (direction.x === 0) direction = { x: 1, y: 0 }; break;
-    case " ": startGame(); break;
-    case "p": running = !running; if (running) gameLoop(); break;
-    case "r": resetGame(); draw(); break;
-    case "m": wrapMode = !wrapMode; break;
+  if (e.key === "ArrowUp" || e.key.toLowerCase() === "w") if (direction !== "down") direction = "up";
+  if (e.key === "ArrowDown" || e.key.toLowerCase() === "s") if (direction !== "up") direction = "down";
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") if (direction !== "right") direction = "left";
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") if (direction !== "left") direction = "right";
+
+  if (e.key === " " || e.code === "Space") {
+    if (!running) { reset(); start(); }
+    else { running = !running; overlay.classList.toggle("hidden"); }
+  }
+
+  if (e.key.toLowerCase() === "r") { reset(); start(); }
+  if (e.key.toLowerCase() === "m") { wrapMode = !wrapMode; }
+  if (e.key.toLowerCase() === "p") { running = !running; overlay.classList.toggle("hidden"); }
+});
+
+// 📌 Controles móveis
+document.querySelectorAll(".ctrl").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const dir = btn.dataset.dir;
+    if (dir === "up" && direction !== "down") direction = "up";
+    if (dir === "down" && direction !== "up") direction = "down";
+    if (dir === "left" && direction !== "right") direction = "left";
+    if (dir === "right" && direction !== "left") direction = "right";
+  });
+});
+
+// 📌 Botões da UI
+document.getElementById("startBtn").addEventListener("click", () => {
+  if (!running) {
+    reset();
+    start();
   }
 });
 
-document.querySelectorAll(".ctrl").forEach(btn =>
-  btn.addEventListener("click", () => {
-    const dir = btn.dataset.dir;
-    if (dir === "up" && direction.y === 0) direction = { x: 0, y: -1 };
-    if (dir === "down" && direction.y === 0) direction = { x: 0, y: 1 };
-    if (dir === "left" && direction.x === 0) direction = { x: -1, y: 0 };
-    if (dir === "right" && direction.x === 0) direction = { x: 1, y: 0 };
-  })
-);
+document.getElementById("resetBtn").addEventListener("click", () => {
+  reset();
+  start();
+});
 
-function startGame() {
-  if (!running) {
-    running = true;
-    document.getElementById("overlay").classList.add("hidden");
-    gameLoop();
-  }
-}
-
-document.getElementById("startBtn").onclick = startGame;
-document.getElementById("pauseBtn").onclick = () => { running = !running; if (running) gameLoop(); };
-document.getElementById("resetBtn").onclick = () => { resetGame(); draw(); };
-document.getElementById("overlayBtn").onclick = startGame;
-
+// 📌 Inicialização
 highscore = parseInt(localStorage.getItem("snakeHighscore")) || 0;
-resetGame();
+highscoreEl.textContent = highscore;
+reset();
 draw();
