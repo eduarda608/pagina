@@ -1,29 +1,14 @@
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background: linear-gradient(to bottom, #4facfe, #00f2fe);
-}
-
-#menu {
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  font-family: sans-serif;
   margin-top: 50px;
 }
 
-#gameCanvas {
-  display: none;
-  background: #87ceeb;
-  margin: 20px auto;
-  display: block;
-  border: 3px solid black;
-}
-
-input, button {
-  padding: 10px;
-  margin: 10px;
-  font-size: 16px;
-}
-
-ol {
-  text-align: left;
-  display: inline-block;
+canvas {
+  background: #222;
+  border: 2px solid #0f0;
 }
