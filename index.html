@@ -1,54 +1,19 @@
-Html
-<! DOCTYPE html>
-<html lang="pt-BR">
-<cabeça>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jogo da Cobrinha</title>
-<link rel="folha de estilo" href="style.css">
-</cabeça>
-<corpo>
-<div class="app">
-<div class="topbar">
-<div class="title"> 🐍 Jogo da Cobrinha</div>
-<div class="estatísticas">
-<div class="chip">Pontuação: <span id="score">0</span></div>
-<div class="chip">Gravado: <span id="highscore">0</span></div>
-<div class="chip">Velocidade: <span id="speed">1</span>x</div>
-</div>
-<div class="actions">
-<button id="startBtn" class="btn primary">Iniciar</button>
-<button id="resetBtn" class="btn">Reiniciar</button>
-</div>
-</div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Cobrinha</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameOver" class="hidden">
+      <p>Você perdeu! Pressione R para reiniciar</p>
+    </div>
+  </div>
 
-<div class="game">
-<div class="viewport">
-<canvas id="gameCanvas"></canvas>
-<div id="overlay" class="overlay oculto">
-<div class="card">
-<h2 id="overlayTitle">Jogo pausado</h2>
-<p id="overlayText">Pressione <kbd class="kbd">Espaço</kbd> para continuar</p>
-</div>
-</div>
-</div>
-
-<div class="mobile-controls">
-<div class="dpad">
-<div class="spacer"></div>
-<classe do botão = "ctrl" data-dir = "para cima" >▲ < / botão>
-<div class="spacer"></div>
-<classe de botão = "ctrl" diretório de dados = "esquerda" > ◀ < / botão>
-<div class="spacer"></div>
-<classe do botão = "ctrl" diretório de dados = "direita" > ▶ < / botão>
-<div class="spacer"></div>
-<classe do botão = "ctrl" data-dir = "para baixo" > ▼ < / botão>
-<div class="spacer"></div>
-</div>
-</div>
-</div>
-</div>
-
-<script src="script.js"></script>
-</corpo>
+  <script src="script.js"></script>
+</body>
 </html>
