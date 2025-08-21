@@ -1,115 +1,147 @@
-// Definindo as variáveis globais
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Definindo as dimensões do canvas
 const gridSize = 20;
-const canvasWidth = 600;
-const canvasHeight = 400;
-canvas.width = canvasWidth;
-canvas.height = canvasHeight;
+const tileSize = canvas.width / gridSize;
 
-let snake = [{ x: 100, y: 100 }];
-let snakeLength = 1;
-let direction = "RIGHT";
-let food = generateFood();
-let gameOver = false;
-let gameInterval;
+let snake, direction, food, obstacles, score, highscore, speed, running, wrapMode;
 
-// Inicia o jogo
-function startGame() {
-  gameOver = false;
-  snake = [{ x: 100, y: 100 }];
-  snakeLength = 1;
-  direction = "RIGHT";
-  food = generateFood();
-  document.getElementById("gameOver").style.display = "none";
-  gameInterval = setInterval(updateGame, 100);
+function resetGame() {
+  snake = [{ x: 10, y: 10 }];
+  direction = { x: 0, y: 0 };
+  food = spawnFood();
+  obstacles = [];
+  score = 0;
+  speed = 6;
+  running = false;
+  wrapMode = true;
+  updateUI();
 }
 
-// Função para gerar a comida
-function generateFood() {
-  return {
-    x: Math.floor(Math.random() * (canvasWidth / gridSize)) * gridSize,
-    y: Math.floor(Math.random() * (canvasHeight / gridSize)) * gridSize
-  };
+function spawnFood() {
+  let pos;
+  do {
+    pos = { x: Math.floor(Math.random() * gridSize), y: Math.floor(Math.random() * gridSize) };
+  } while (snake.some(s => s.x === pos.x && s.y === pos.y) || obstacles.some(o => o.x === pos.x && o.y === pos.y));
+  return pos;
 }
 
-// Função para desenhar o jogo
-function drawGame() {
-  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-  // Desenha a cobra
-  snake.forEach((segment, index) => {
-    ctx.fillStyle = index === 0 ? "green" : "lime"; // A cabeça da cobra é verde
-    ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
-  });
-
-  // Desenha a comida
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, gridSize, gridSize);
+function spawnObstacle() {
+  let pos;
+  do {
+    pos = { x: Math.floor(Math.random() * gridSize), y: Math.floor(Math.random() * gridSize) };
+  } while (snake.some(s => s.x === pos.x && s.y === pos.y) || (food.x === pos.x && food.y === pos.y));
+  obstacles.push(pos);
 }
 
-// Função para atualizar a lógica do jogo
-function updateGame() {
-  if (gameOver) {
-    clearInterval(gameInterval);
-    document.getElementById("gameOver").style.display = "block";
-    return;
+function updateUI() {
+  document.getElementById("score").textContent = score;
+  document.getElementById("highscore").textContent = highscore;
+  document.getElementById("speed").textContent = speed;
+}
+
+function gameLoop() {
+  if (!running) return;
+
+  const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+  if (wrapMode) {
+    head.x = (head.x + gridSize) % gridSize;
+    head.y = (head.y + gridSize) % gridSize;
+  } else {
+    if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
+      return gameOver();
+    }
   }
 
-  // Movendo a cobra
-  let head = { ...snake[0] };
-
-  if (direction === "RIGHT") head.x += gridSize;
-  if (direction === "LEFT") head.x -= gridSize;
-  if (direction === "UP") head.y -= gridSize;
-  if (direction === "DOWN") head.y += gridSize;
-
-  // Verifica colisões
-  if (
-    head.x < 0 || head.x >= canvasWidth || 
-    head.y < 0 || head.y >= canvasHeight || 
-    collisionWithSnake(head)
-  ) {
-    gameOver = true;
-    return;
+  if (snake.some(seg => seg.x === head.x && seg.y === head.y) ||
+      obstacles.some(o => o.x === head.x && o.y === head.y)) {
+    return gameOver();
   }
 
   snake.unshift(head);
 
-  // Verifica se comeu a comida
   if (head.x === food.x && head.y === food.y) {
-    snakeLength++;
-    food = generateFood();
+    score++;
+    if (score > highscore) {
+      highscore = score;
+      localStorage.setItem("snakeHighscore", highscore);
+    }
+    if (score % 5 === 0) {
+      speed++;
+      spawnObstacle();
+    }
+    food = spawnFood();
   } else {
     snake.pop();
   }
 
-  drawGame();
+  updateUI();
+  draw();
+  setTimeout(gameLoop, 1000 / speed);
 }
 
-// Função para verificar colisão com a cobra
-function collisionWithSnake(head) {
-  return snake.some(segment => segment.x === head.x && segment.y === head.y);
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#f43f5e";
+  ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
+
+  ctx.fillStyle = "#f59e0b";
+  obstacles.forEach(o => ctx.fillRect(o.x * tileSize, o.y * tileSize, tileSize, tileSize));
+
+  ctx.fillStyle = "#22d3ee";
+  snake.forEach((s, i) => {
+    ctx.fillStyle = i === 0 ? "#38bdf8" : "#22d3ee";
+    ctx.fillRect(s.x * tileSize, s.y * tileSize, tileSize, tileSize);
+  });
 }
 
-// Função para alterar a direção
-function changeDirection(event) {
-  if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-  if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-  if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-  if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+function gameOver() {
+  running = false;
+  document.getElementById("overlay").classList.remove("hidden");
 }
 
-// Reiniciar o jogo ao pressionar a tecla "R"
-function restartGame(event) {
-  if (event.key === "r" || event.key === "R") startGame();
+document.addEventListener("keydown", e => {
+  switch (e.key) {
+    case "ArrowUp":
+    case "w": if (direction.y === 0) direction = { x: 0, y: -1 }; break;
+    case "ArrowDown":
+    case "s": if (direction.y === 0) direction = { x: 0, y: 1 }; break;
+    case "ArrowLeft":
+    case "a": if (direction.x === 0) direction = { x: -1, y: 0 }; break;
+    case "ArrowRight":
+    case "d": if (direction.x === 0) direction = { x: 1, y: 0 }; break;
+    case " ": startGame(); break;
+    case "p": running = !running; if (running) gameLoop(); break;
+    case "r": resetGame(); draw(); break;
+    case "m": wrapMode = !wrapMode; break;
+  }
+});
+
+document.querySelectorAll(".ctrl").forEach(btn =>
+  btn.addEventListener("click", () => {
+    const dir = btn.dataset.dir;
+    if (dir === "up" && direction.y === 0) direction = { x: 0, y: -1 };
+    if (dir === "down" && direction.y === 0) direction = { x: 0, y: 1 };
+    if (dir === "left" && direction.x === 0) direction = { x: -1, y: 0 };
+    if (dir === "right" && direction.x === 0) direction = { x: 1, y: 0 };
+  })
+);
+
+function startGame() {
+  if (!running) {
+    running = true;
+    document.getElementById("overlay").classList.add("hidden");
+    gameLoop();
+  }
 }
 
-// Adicionando os eventos de teclado
-document.addEventListener("keydown", changeDirection);
-document.addEventListener("keydown", restartGame);
+document.getElementById("startBtn").onclick = startGame;
+document.getElementById("pauseBtn").onclick = () => { running = !running; if (running) gameLoop(); };
+document.getElementById("resetBtn").onclick = () => { resetGame(); draw(); };
+document.getElementById("overlayBtn").onclick = startGame;
 
-// Iniciar o jogo
-startGame();
+highscore = parseInt(localStorage.getItem("snakeHighscore")) || 0;
+resetGame();
+draw();
