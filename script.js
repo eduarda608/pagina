@@ -1,174 +1,115 @@
+// Definindo as variáveis globais
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-canvas.width = 800;
-canvas.height = 800;
 
-const scoreEl = document.getElementById("score");
-const highscoreEl = document.getElementById("highscore");
-const speedEl = document.getElementById("velocidade");
-const overlay = document.getElementById("overlay");
-const overlayTitle = document.getElementById("overlayTitle");
-const overlayText = document.getElementById("overlayText");
-
+// Definindo as dimensões do canvas
 const gridSize = 20;
-const cellSize = canvas.width / gridSize;
+const canvasWidth = 600;
+const canvasHeight = 400;
+canvas.width = canvasWidth;
+canvas.height = canvasHeight;
 
-deixe cobra, direção, comida, obstáculos, pontuação, recorde, velocidade, corrida, wrapMode;
+let snake = [{ x: 100, y: 100 }];
+let snakeLength = 1;
+let direction = "RIGHT";
+let food = generateFood();
+let gameOver = false;
+let gameInterval;
 
-função reset() {
-cobra = [{ x: 10, y: 10 }];
-for (let i = 1; i < 5; i++) snake.push({ x: 10 - i, y: 10 });
-direção = "direita";
-escore = 0;
-velocidade = 6;
-comida = spawnFood();
-obstáculos = [];
-running = verdadeiro;
-wrapMode = true;
-scoreEl.textContent = pontuação;
-speedEl.textContent = "1";
-overlay.classList.add("oculto");
+// Inicia o jogo
+function startGame() {
+  gameOver = false;
+  snake = [{ x: 100, y: 100 }];
+  snakeLength = 1;
+  direction = "RIGHT";
+  food = generateFood();
+  document.getElementById("gameOver").style.display = "none";
+  gameInterval = setInterval(updateGame, 100);
 }
 
-function spawnFood() {
-deixe pos;
-do {
-pos = { x: Math.floor(Math.random() * gridSize), y: Math.floor(Math.random() * gridSize) };
-} while (snake.some(s => s.x === pos.x && s.y === pos.y) || obstacles.some(o => o.x === pos.x && o.y === pos.y));
-retornar pos;
+// Função para gerar a comida
+function generateFood() {
+  return {
+    x: Math.floor(Math.random() * (canvasWidth / gridSize)) * gridSize,
+    y: Math.floor(Math.random() * (canvasHeight / gridSize)) * gridSize
+  };
 }
 
-function spawnObstacle() {
-deixe pos;
-do {
-pos = { x: Math.floor(Math.random() * gridSize), y: Math.floor(Math.random() * gridSize) };
-} while (snake.some(s) => s.x === pos.x && s.y === pos.y) || (comida && comida.x === pos.x && comida.y === pos.y));
-obstáculos.push(pos);
+// Função para desenhar o jogo
+function drawGame() {
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+  // Desenha a cobra
+  snake.forEach((segment, index) => {
+    ctx.fillStyle = index === 0 ? "green" : "lime"; // A cabeça da cobra é verde
+    ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
+  });
+
+  // Desenha a comida
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, gridSize, gridSize);
 }
 
-function drawCell(x, y, cor) {
-ctx.fillStyle = cor;
-ctx.fillRect(x * cellSize, y * cellSize, cellSize - 2, cellSize - 2);
+// Função para atualizar a lógica do jogo
+function updateGame() {
+  if (gameOver) {
+    clearInterval(gameInterval);
+    document.getElementById("gameOver").style.display = "block";
+    return;
+  }
+
+  // Movendo a cobra
+  let head = { ...snake[0] };
+
+  if (direction === "RIGHT") head.x += gridSize;
+  if (direction === "LEFT") head.x -= gridSize;
+  if (direction === "UP") head.y -= gridSize;
+  if (direction === "DOWN") head.y += gridSize;
+
+  // Verifica colisões
+  if (
+    head.x < 0 || head.x >= canvasWidth || 
+    head.y < 0 || head.y >= canvasHeight || 
+    collisionWithSnake(head)
+  ) {
+    gameOver = true;
+    return;
+  }
+
+  snake.unshift(head);
+
+  // Verifica se comeu a comida
+  if (head.x === food.x && head.y === food.y) {
+    snakeLength++;
+    food = generateFood();
+  } else {
+    snake.pop();
+  }
+
+  drawGame();
 }
 
-function gameOver() {
-running = false;
-overlay.classList.remove("oculto");
-overlayTitle.textContent = "Fim do jogo";
-overlayText.textContent = "Pressione R para reiniciar";
+// Função para verificar colisão com a cobra
+function collisionWithSnake(head) {
+  return snake.some(segment => segment.x === head.x && segment.y === head.y);
 }
 
-função update() {
-if (!running) retornar;
-
-const cabeça = { ... cobra[0] };
-se (direção === "para cima") cabeça.y--;
-if (direção === "para baixo") cabeça.y++;
-if (direção === "esquerda") cabeça.x--;
-if (direção === "direita") cabeça.x++;
-
-if (wrapMode) {
-if (head.x < 0) head.x = gridSize - 1;
-if (head.x >= gridSize) head.x = 0;
-if (head.y < 0) head.y = gridSize - 1;
-if (head.y >= gridSize) head.y = 0;
-} else {
-if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
-gameOver();
-retornar;
-}
+// Função para alterar a direção
+function changeDirection(event) {
+  if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+  if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+  if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+  if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
 }
 
-if (snake.some(s) => s.x === head.x && s.y === head.y) ||
-obstacles.some(o => o.x === head.x && o.y === head.y)) {
-gameOver();
-retornar;
+// Reiniciar o jogo ao pressionar a tecla "R"
+function restartGame(event) {
+  if (event.key === "r" || event.key === "R") startGame();
 }
 
-cobra.unshift(cabeça);
+// Adicionando os eventos de teclado
+document.addEventListener("keydown", changeDirection);
+document.addEventListener("keydown", restartGame);
 
-if (cabeça.x === comida.x && cabeça.y === comida.y) {
-pontuação++;
-scoreEl.textContent = pontuação;
-comida = spawnFood();
-if (pontuação % 5 === 0) {
-velocidade += 2;
-speedEl.textContent = (speed / 6).toFixed(1) + "x";
-spawnObstacle();
-}
-if (pontuação > recorde) {
-pontuação alta = pontuação;
-localStorage.setItem("snakeHighscore", highscore);
-highscoreEl.textContent = highscore;
-}
-} else {
-cobra.pop();
-}
-}
-
-function draw() {
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-snake.forEach((s, i) => drawCell(s.x, s.y, i === 0 ? "var(--snake-head)" : "var(--snake)"));
-drawCell(alimento.x, alimento.y, "var(--alimento)");
-obstacles.forEach(o => drawCell(o.x, o.y, "var(--obstacle)"));
-}
-
-função loop() {
-if (em execução) {
-update();
-draw();
-}
-setTimeout(() => requestAnimationFrame(loop), 1000 / velocidade);
-}
-
-function start() {
-loop();
-}
-
-📌 Controles do teclado
-document.addEventListener("keydown", e => {
-if (e.key === "Seta para cima" || e.key.toLowerCase() === "w") if (direção !== "para baixo") direção = "para cima";
-if (e.key === "SetaDown" || e.key.toLowerCase() === "s") if (direção !== "para cima") direção = "para baixo";
-if (e.key === "SetaEsquerda" || e.key.toLowerCase() === "a") if (direção !== "direita") direção = "esquerda";
-if (e.key === "SetaDireita" || e.key.toLowerCase() === "d") if (direção !== "esquerda") direção = "direita";
-
-if (e.key === " " || e.code === "Espaço") {
-if (!running) { reset(); start(); }
-else { running = !running; overlay.classList.toggle("hidden"); }
-}
-
-if (e.key.toLowerCase() === "r") { reset(); start(); }
-if (e.key.toLowerCase() === "m") { wrapMode = !wrapMode; }
-if (e.key.toLowerCase() === "p") { running = !running; overlay.classList.toggle("hidden"); }
-});
-
-📌 Cheques móveis
-document.querySelectorAll(".ctrl").forEach(btn => {
-btn.addEventListener("clique", () => {
-const dir = btn.dataset.dir;
-if (dir === "up" && direction !== "down") direction = "up";
-if (dir === "down" && direction !== "up") direction = "down";
-if (dir === "left" && direction !== "right") direction = "left";
-if (dir === "right" && direction !== "left") direction = "right";
-});
-});
-
-// 📌 Botões da UI
-document.getElementById("startBtn").addEventListener("clique", () => {
-if (!running) {
-reset();
-início();
-}
-});
-
-document.getElementById("resetBtn").addEventListener("clique", () => {
-reset();
-início();
-});
-
-// 📌 Inicialização
-highscore = parseInt(localStorage.getItem("snakeHighscore")) || 0;
-highscoreEl.textContent = highscore;
-reset();
-draw();
+// Iniciar o jogo
+startGame();
