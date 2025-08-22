@@ -1,7 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const gridSize = 20;
+const gridSize = 20; // Tamanho do grid
 const tileSize = canvas.width / gridSize;
 
 let snake, direction, food, obstacles, score, highscore, speed, running, wrapMode;
@@ -84,15 +84,15 @@ function gameLoop() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "#f43f5e";
+  ctx.fillStyle = "#f43f5e"; // Cor da comida
   ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
 
-  ctx.fillStyle = "#f59e0b";
+  ctx.fillStyle = "#f59e0b"; // Cor dos obstáculos
   obstacles.forEach(o => ctx.fillRect(o.x * tileSize, o.y * tileSize, tileSize, tileSize));
 
-  ctx.fillStyle = "#22d3ee";
+  ctx.fillStyle = "#22d3ee"; // Cor do corpo da cobra
   snake.forEach((s, i) => {
-    ctx.fillStyle = i === 0 ? "#38bdf8" : "#22d3ee";
+    ctx.fillStyle = i === 0 ? "#38bdf8" : "#22d3ee"; // Cabeça da cobra com cor diferente
     ctx.fillRect(s.x * tileSize, s.y * tileSize, tileSize, tileSize);
   });
 }
