@@ -2,37 +2,190 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cobrinha Clássica Melhorada</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Jogo da Cobrinha</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    canvas {
+      background-color: #222;
+      border: 3px solid #555;
+      margin-bottom: 15px;
+    }
+    #score {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #008800;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 5px;
+      transition: background-color 0.3s;
+    }
+    button:hover:not(:disabled) {
+      background-color: #00bb00;
+    }
+    button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+    #gameOverMessage {
+      margin-top: 15px;
+      font-size: 26px;
+      color: #ff4444;
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>🐍 Snake Clássico Melhorado</h1>
-  <button id="startBtn">Iniciar Jogo</button>
-  
-  <canvas id="game" width="320" height="320"></canvas>
-
-  <p>Pontuação: <span id="score">0</span></p>
-
-  <!-- Controles mobile -->
-  <div id="mobileControls" class="hidden">
-    <button data-dir="UP">⬆️</button>
-    <div>
-      <button data-dir="LEFT">⬅️</button>
-      <button data-dir="DOWN">⬇️</button>
-      <button data-dir="RIGHT">➡️</button>
-    </div>
+  <h1>Jogo da Cobrinha</h1>
+  <canvas id="game" width="400" height="400"></canvas>
+  <div id="score">Pontuação: 0</div>
+  <div>
+    <button id="startBtn">Iniciar Jogo</button>
+    <button id="restartBtn" style="display:none;">Jogar Novamente</button>
   </div>
+  <div id="gameOverMessage">Game Over!</div>
 
-  <!-- Modal Game Over -->
-  <div id="gameOverModal" class="modal hidden">
-    <div class="modal-content">
-      <h2>Game Over!</h2>
-      <p>Sua pontuação foi: <span id="finalScore">0</span></p>
-      <button id="restartBtn">Jogar Novamente</button>
-    </div>
-  </div>
+  <script>
+    (function() {
+      const canvas = document.getElementById('game');
+      const ctx = canvas.getContext('2d');
+      const box = 20;
+      const cols = canvas.width / box;
+      const rows = canvas.height / box;
 
-  <script src="script.js"></script>
+      let snake = [];
+      let direction = null;
+      let food = {};
+      let score = 0;
+      let gameInterval = null;
+      let speed = 200;
+
+      const scoreDisplay = document.getElementById('score');
+      const startBtn = document.getElementById('startBtn');
+      const restartBtn = document.getElementById('restartBtn');
+      const gameOverMessage = document.getElementById('gameOverMessage');
+
+      function resetGame() {
+        snake = [
+          { x: 5 * box, y: 5 * box },
+          { x: 4 * box, y: 5 * box },
+          { x: 3 * box, y: 5 * box }
+        ];
+        direction = 'RIGHT';
+        score = 0;
+        speed = 200;
+        scoreDisplay.textContent = 'Pontuação: ' + score;
+        gameOverMessage.style.display = 'none';
+        placeFood();
+      }
+
+      function placeFood() {
+        food.x = Math.floor(Math.random() * cols) * box;
+        food.y = Math.floor(Math.random() * rows) * box;
+        while (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+          food.x = Math.floor(Math.random() * cols) * box;
+          food.y = Math.floor(Math.random() * rows) * box;
+        }
+      }
+
+      function draw() {
+        ctx.fillStyle = '#222';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        snake.forEach((segment, i) => {
+          ctx.fillStyle = i === 0 ? '#00FF00' : '#006400';
+          ctx.strokeStyle = '#003300';
+          ctx.lineWidth = 2;
+          ctx.fillRect(segment.x, segment.y, box, box);
+          ctx.strokeRect(segment.x, segment.y, box, box);
+        });
+
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(food.x, food.y, box, box);
+
+        let head = { ...snake[0] };
+        if (direction === 'LEFT') head.x -= box;
+        else if (direction === 'RIGHT') head.x += box;
+        else if (direction === 'UP') head.y -= box;
+        else if (direction === 'DOWN') head.y += box;
+
+        if (
+          head.x < 0 || head.y < 0 ||
+          head.x >= canvas.width || head.y >= canvas.height
+        ) {
+          gameOver();
+          return;
+        }
+
+        if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+          gameOver();
+          return;
+        }
+
+        snake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+          score++;
+          scoreDisplay.textContent = 'Pontuação: ' + score;
+          placeFood();
+          if (score % 5 === 0 && speed > 50) {
+            speed -= 20;
+            clearInterval(gameInterval);
+            gameInterval = setInterval(draw, speed);
+          }
+        } else {
+          snake.pop();
+        }
+      }
+
+      function gameOver() {
+        clearInterval(gameInterval);
+        gameInterval = null;
+        gameOverMessage.style.display = 'block';
+        startBtn.style.display = 'none';
+        restartBtn.style.display = 'inline-block';
+      }
+
+      function changeDirection(e) {
+        const key = e.key;
+        if (key === 'ArrowLeft' && direction !== 'RIGHT') direction = 'LEFT';
+        else if (key === 'ArrowRight' && direction !== 'LEFT') direction = 'RIGHT';
+        else if (key === 'ArrowUp' && direction !== 'DOWN') direction = 'UP';
+        else if (key === 'ArrowDown' && direction !== 'UP') direction = 'DOWN';
+      }
+
+      startBtn.addEventListener('click', () => {
+        resetGame();
+        startBtn.style.display = 'none';
+        restartBtn.style.display = 'none';
+        document.addEventListener('keydown', changeDirection);
+        gameInterval = setInterval(draw, speed);
+      });
+
+      restartBtn.addEventListener('click', () => {
+        resetGame();
+        restartBtn.style.display = 'none';
+        gameOverMessage.style.display = 'none';
+        gameInterval = setInterval(draw, speed);
+      });
+    })();
+  </script>
 </body>
 </html>
