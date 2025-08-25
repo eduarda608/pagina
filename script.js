@@ -1,146 +1,66 @@
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const box = 20;
-const rows = canvas.width / box;
+(function() {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const box = 20;
+  const cols = canvas.width / box;
+  const rows = canvas.height / box;
 
-let snake = [];
-let direction = 'RIGHT';
-let food;
-let gameLoop = null;
-let score = 0;
-let speed = 200;
+  let snake = [];
+  let direction = null;
+  let food = {};
+  let score = 0;
+  let gameInterval = null;
+  let speed = 200;
 
-const startBtn = document.getElementById('startBtn');
-const scoreDisplay = document.getElementById('score');
+  const scoreDisplay = document.getElementById('score');
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const gameOverMessage = document.getElementById('gameOverMessage');
 
-const mobileControls = document.getElementById('mobileControls');
-const gameOverModal = document.getElementById('gameOverModal');
-const finalScore = document.getElementById('finalScore');
-const restartBtn = document.getElementById('restartBtn');
-
-startBtn.addEventListener('click', () => {
-  console.log('Jogo iniciado');
-  startBtn.classList.add('hidden');
-  mobileControls.classList.remove('hidden');
-  gameOverModal.classList.add('hidden');
-  startGame();
-});
-
-restartBtn.addEventListener('click', () => {
-  console.log('Jogo reiniciado');
-  gameOverModal.classList.add('hidden');
-  mobileControls.classList.remove('hidden');
-  startBtn.classList.add('hidden');
-  startGame();
-});
-
-mobileControls.querySelectorAll('button').forEach(button => {
-  button.addEventListener('click', () => {
-    const dir = button.getAttribute('data-dir');
-    changeDirection(dir);
-  });
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowUp') changeDirection('UP');
-  else if (e.key === 'ArrowDown') changeDirection('DOWN');
-  else if (e.key === 'ArrowLeft') changeDirection('LEFT');
-  else if (e.key === 'ArrowRight') changeDirection('RIGHT');
-});
-
-function changeDirection(newDir) {
-  if (newDir === 'UP' && direction !== 'DOWN') direction = 'UP';
-  else if (newDir === 'DOWN' && direction !== 'UP') direction = 'DOWN';
-  else if (newDir === 'LEFT' && direction !== 'RIGHT') direction = 'LEFT';
-  else if (newDir === 'RIGHT' && direction !== 'LEFT') direction = 'RIGHT';
-}
-
-function startGame() {
-  console.log('startGame() chamado');
-  snake = [
-    { x: 5 * box, y: 5 * box },
-    { x: 4 * box, y: 5 * box },
-    { x: 3 * box, y: 5 * box }
-  ];
-  direction = 'RIGHT';
-  score = 0;
-  speed = 200;
-  scoreDisplay.textContent = score;
-  placeFood();
-
-  if (gameLoop) {
-    clearInterval(gameLoop);
-    gameLoop = null;
-    console.log('Intervalo anterior limpo');
-  }
-  gameLoop = setInterval(draw, speed);
-  console.log('Intervalo criado');
-}
-
-function placeFood() {
-  food = {
-    x: Math.floor(Math.random() * rows) * box,
-    y: Math.floor(Math.random() * rows) * box
-  };
-  while (snake.some(seg => seg.x === food.x && seg.y === food.y)) {
-    food.x = Math.floor(Math.random() * rows) * box;
-    food.y = Math.floor(Math.random() * rows) * box;
-  }
-}
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  snake.forEach((segment, i) => {
-    ctx.fillStyle = i === 0 ? '#00FF00' : '#006400';
-    ctx.strokeStyle = '#003300';
-    ctx.lineWidth = 2;
-    ctx.fillRect(segment.x, segment.y, box, box);
-    ctx.strokeRect(segment.x, segment.y, box, box);
-  });
-
-  ctx.fillStyle = '#FF0000';
-  ctx.fillRect(food.x, food.y, box, box);
-
-  let head = { ...snake[0] };
-  if (direction === 'LEFT') head.x -= box;
-  else if (direction === 'RIGHT') head.x += box;
-  else if (direction === 'UP') head.y -= box;
-  else if (direction === 'DOWN') head.y += box;
-
-  if (
-    head.x < 0 || head.y < 0 ||
-    head.x >= canvas.width || head.y >= canvas.height ||
-    snake.some(seg => seg.x === head.x && seg.y === head.y)
-  ) {
-    endGame();
-    return;
-  }
-
-  snake.unshift(head);
-
-  if (head.x === food.x && head.y === food.y) {
-    score++;
-    scoreDisplay.textContent = score;
+  function resetGame() {
+    snake = [
+      { x: 5 * box, y: 5 * box },
+      { x: 4 * box, y: 5 * box },
+      { x: 3 * box, y: 5 * box }
+    ];
+    direction = 'RIGHT';
+    score = 0;
+    speed = 200;
+    scoreDisplay.textContent = 'Pontuação: ' + score;
+    gameOverMessage.style.display = 'none';
     placeFood();
-
-    if (score % 5 === 0 && speed > 50) {
-      speed -= 20;
-      clearInterval(gameLoop);
-      gameLoop = setInterval(draw, speed);
-      console.log(`Velocidade aumentada para ${speed} ms`);
-    }
-  } else {
-    snake.pop();
   }
-}
 
-function endGame() {
-  clearInterval(gameLoop);
-  gameLoop = null;
-  console.log('Game Over');
-  finalScore.textContent = score;
-  gameOverModal.classList.remove('hidden');
-  mobileControls.classList.add('hidden');
-  startBtn.classList.remove('hidden');
-}
+  function placeFood() {
+    food.x = Math.floor(Math.random() * cols) * box;
+    food.y = Math.floor(Math.random() * rows) * box;
+    while (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+      food.x = Math.floor(Math.random() * cols) * box;
+      food.y = Math.floor(Math.random() * rows) * box;
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    snake.forEach((segment, i) => {
+      ctx.fillStyle = i === 0 ? '#00FF00' : '#006400';
+      ctx.strokeStyle = '#003300';
+      ctx.lineWidth = 2;
+      ctx.fillRect(segment.x, segment.y, box, box);
+      ctx.strokeRect(segment.x, segment.y, box, box);
+    });
+
+    ctx.fillStyle = '#FF0000';
+    ctx.fillRect(food.x, food.y, box, box);
+
+    let head = { ...snake[0] };
+    if (direction === 'LEFT') head.x -= box;
+    else if (direction === 'RIGHT') head.x += box;
+    else if (direction === 'UP') head.y -= box;
+    else if (direction === 'DOWN') head.y += box;
+
+    if (
+      head.x < 0 || head.y < 0 ||
+      head.x >= canv
