@@ -1,87 +1,81 @@
-const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-
 const box = 20;
+const rows = canvas.width / box;
+let snake = [];
+let direction = 'RIGHT';
+let food;
+let gameLoop;
 let score = 0;
 
-let snake = [];
-snake[0] = {
-  x: 9 * box,
-  y: 10 * box
-};
+const startBtn = document.getElementById('startBtn');
+const scoreDisplay = document.getElementById('score');
 
-let food = {
-  x: Math.floor(Math.random() * (canvas.width / box)) * box,
-  y: Math.floor(Math.random() * (canvas.height / box)) * box
-};
+startBtn.addEventListener('click', startGame);
 
-let direction = '';
-
-document.addEventListener('keydown', directionHandler);
-
-function directionHandler(event) {
-  if (event.key === 'ArrowLeft' && direction !== 'RIGHT') direction = 'LEFT';
-  if (event.key === 'ArrowUp' && direction !== 'DOWN') direction = 'UP';
-  if (event.key === 'ArrowRight' && direction !== 'LEFT') direction = 'RIGHT';
-  if (event.key === 'ArrowDown' && direction !== 'UP') direction = 'DOWN';
+function startGame() {
+  snake = [{ x: 5 * box, y: 5 * box }];
+  direction = 'RIGHT';
+  score = 0;
+  scoreDisplay.textContent = score;
+  placeFood();
+  if (gameLoop) clearInterval(gameLoop);
+  gameLoop = setInterval(draw, 150);
 }
+
+function placeFood() {
+  food = {
+    x: Math.floor(Math.random() * rows) * box,
+    y: Math.floor(Math.random() * rows) * box
+  };
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowUp' && direction !== 'DOWN') direction = 'UP';
+  if (e.key === 'ArrowDown' && direction !== 'UP') direction = 'DOWN';
+  if (e.key === 'ArrowLeft' && direction !== 'RIGHT') direction = 'LEFT';
+  if (e.key === 'ArrowRight' && direction !== 'LEFT') direction = 'RIGHT';
+});
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Desenha a cobra
-  for (let i = 0; i < snake.length; i++) {
-    ctx.fillStyle = i === 0 ? '#00796b' : '#26a69a';
-    ctx.fillRect(snake[i].x, snake[i].y, box, box);
-  }
+  // Desenha a cobrinha
+  snake.forEach((segment, i) => {
+    ctx.fillStyle = i === 0 ? '#0f0' : '#080';
+    ctx.fillRect(segment.x, segment.y, box, box);
+  });
 
   // Desenha a comida
-  ctx.fillStyle = '#e91e63';
+  ctx.fillStyle = '#f00';
   ctx.fillRect(food.x, food.y, box, box);
 
-  // Movimento da cobra
-  let snakeX = snake[0].x;
-  let snakeY = snake[0].y;
+  // Movimento
+  let head = { ...snake[0] };
+  if (direction === 'LEFT') head.x -= box;
+  if (direction === 'RIGHT') head.x += box;
+  if (direction === 'UP') head.y -= box;
+  if (direction === 'DOWN') head.y += box;
 
-  if (direction === 'LEFT') snakeX -= box;
-  if (direction === 'UP') snakeY -= box;
-  if (direction === 'RIGHT') snakeX += box;
-  if (direction === 'DOWN') snakeY += box;
+  // Colisão com parede
+  if (
+    head.x < 0 || head.y < 0 ||
+    head.x >= canvas.width || head.y >= canvas.height ||
+    snake.some(seg => seg.x === head.x && seg.y === head.y)
+  ) {
+    clearInterval(gameLoop);
+    alert('💀 Game Over! Pontuação: ' + score);
+    return;
+  }
 
-  // Verifica se comeu a comida
-  if (snakeX === food.x && snakeY === food.y) {
+  snake.unshift(head);
+
+  // Comer
+  if (head.x === food.x && head.y === food.y) {
     score++;
-    document.getElementById('score').innerText = score;
-    food = {
-      x: Math.floor(Math.random() * (canvas.width / box)) * box,
-      y: Math.floor(Math.random() * (canvas.height / box)) * box
-    };
+    scoreDisplay.textContent = score;
+    placeFood();
   } else {
     snake.pop();
   }
-
-  let newHead = {
-    x: snakeX,
-    y: snakeY
-  };
-
-  // Verifica colisões
-  if (
-    snakeX < 0 ||
-    snakeY < 0 ||
-    snakeX >= canvas.width ||
-    snakeY >= canvas.height ||
-    collision(newHead, snake)
-  ) {
-    clearInterval(game);
-    alert('💀 Fim de jogo! Pontuação: ' + score);
-  }
-
-  snake.unshift(newHead);
 }
-
-function collision(head, array) {
-  return array.some(segment => head.x === segment.x && head.y === segment.y);
-}
-
-let game = setInterval(draw, 100);
