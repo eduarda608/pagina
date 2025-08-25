@@ -1,16 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cobrinha Clássica</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cobrinha Clássica Melhorada</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🐍 Snake Clássico</h1>
+  <h1>🐍 Snake Clássico Melhorado</h1>
   <button id="startBtn">Iniciar Jogo</button>
+  
   <canvas id="game" width="320" height="320"></canvas>
+
   <p>Pontuação: <span id="score">0</span></p>
+
+  <!-- Controles mobile -->
+  <div id="mobileControls" class="hidden">
+    <button data-dir="UP">⬆️</button>
+    <div>
+      <button data-dir="LEFT">⬅️</button>
+      <button data-dir="DOWN">⬇️</button>
+      <button data-dir="RIGHT">➡️</button>
+    </div>
+  </div>
+
+  <!-- Modal Game Over -->
+  <div id="gameOverModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Game Over!</h2>
+      <p>Sua pontuação foi: <span id="finalScore">0</span></p>
+      <button id="restartBtn">Jogar Novamente</button>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
