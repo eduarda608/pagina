@@ -74,7 +74,6 @@ function placeFood() {
     x: Math.floor(Math.random() * rows) * box,
     y: Math.floor(Math.random() * rows) * box
   };
-  // Evita que a comida apareça em cima da cobrinha
   while (snake.some(seg => seg.x === food.x && seg.y === food.y)) {
     food.x = Math.floor(Math.random() * rows) * box;
     food.y = Math.floor(Math.random() * rows) * box;
@@ -84,13 +83,11 @@ function placeFood() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Desenha a cobrinha
   snake.forEach((segment, i) => {
     ctx.fillStyle = i === 0 ? '#0f0' : '#080';
     ctx.fillRect(segment.x, segment.y, box, box);
   });
 
-  // Desenha a comida
   ctx.fillStyle = '#f00';
   ctx.fillRect(food.x, food.y, box, box);
 
@@ -100,7 +97,6 @@ function draw() {
   if (direction === 'UP') head.y -= box;
   if (direction === 'DOWN') head.y += box;
 
-  // Colisão com paredes ou corpo
   if (
     head.x < 0 || head.y < 0 ||
     head.x >= canvas.width || head.y >= canvas.height ||
@@ -119,7 +115,6 @@ function draw() {
 
     placeFood();
 
-    // Aumenta a velocidade a cada 5 pontos
     if (score % 5 === 0 && speed > 50) {
       speed -= 20;
       clearInterval(gameLoop);
