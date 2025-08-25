@@ -1,46 +1,40 @@
 body {
-  background-color: #111;
-  color: #eee;
-  font-family: Arial, sans-serif;
+  background: #111;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #eee;
   margin: 0;
-}
-h1 {
-  margin-bottom: 10px;
+  padding: 20px;
 }
 canvas {
-  background-color: #222;
+  background: #222;
   border: 3px solid #555;
-  margin-bottom: 15px;
+  display: block;
+  margin-bottom: 10px;
 }
 #score {
-  font-size: 20px;
+  font-size: 18px;
   margin-bottom: 10px;
 }
 button {
   background-color: #008800;
-  border: none;
   color: white;
+  border: none;
   padding: 10px 20px;
   font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
-  margin: 0 5px;
-  transition: background-color 0.3s;
-}
-button:hover:not(:disabled) {
-  background-color: #00bb00;
+  margin: 5px;
 }
 button:disabled {
   background-color: #555;
   cursor: not-allowed;
 }
-#gameOverMessage {
-  margin-top: 15px;
-  font-size: 26px;
+#gameOverMsg {
+  font-size: 24px;
   color: #ff4444;
+  margin-top: 10px;
   display: none;
 }
